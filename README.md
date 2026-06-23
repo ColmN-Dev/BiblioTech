@@ -12,4 +12,7 @@ Project docs live in [Docs/Planning.md](Docs/Planning.md). The repo root is the 
 	- `pip install -r requirements.txt`
 
 ## Run
-The Flask app entrypoint has not been added yet, so there is no run command committed for this repo right now. Once the main app file exists, the README can be updated with the exact launch command.
+The Flask app entrypoint is `app.py`.
+
+- Local development: `python app.py`
+- Render / Gunicorn: `gunicorn app:app`
