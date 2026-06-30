@@ -76,3 +76,5 @@ BiblioTech is a book discovery and collection manager. Unlike my last project, i
 * Pick 4 random books automatically for the homepage carousel on each page load
 * The carousel should refresh whenever the page reloads
 * This keeps the homepage dynamic and simple
+
+![BiblioTech_ERD](../static/images/BiblioTech_ERD.png)
