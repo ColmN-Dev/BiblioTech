@@ -8,6 +8,14 @@
     padding: 0;
 }
 
+header {
+    color: #fff;
+    padding: 1rem;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    background-color: rgba(0, 0, 0, 0.85);
+}
+
 
 body {
     min-height: 100vh;
