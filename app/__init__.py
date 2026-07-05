@@ -2,10 +2,10 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from .config import Config
 
-# Initialize the SQLAlchemy object
+# Initialize SQLAlchemy instance for database management
 db = SQLAlchemy()
 
-# Create the Flask application factory
+# Load configuration from config object
 def create_app():
     app = Flask(__name__)
     app.config.from_object(Config)
