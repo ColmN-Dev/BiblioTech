@@ -192,5 +192,6 @@ This means the database layer is prepared structurally, but domain tables (Users
 
 - Flask documentation: https://flask.palletsprojects.com/
 - Flask SQLAlchemy: https://flask-sqlalchemy.palletsprojects.com/
+- Flask App Structure: https://www.colabcodes.com/post/flask-application-structure-organizing-python-web-apps-for-scalability
 - Gunicorn docs: https://docs.gunicorn.org/
 - Google Books API: https://developers.google.com/books/docs/v1/using
