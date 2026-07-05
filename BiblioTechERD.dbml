@@ -1,0 +1,29 @@
+Table Users {
+user_id int [pk, increment]
+username varchar
+password_hash varchar
+}
+
+Table User_Library {
+user_id int [pk]
+google_book_id varchar [pk]
+}
+
+Table Reviews {
+review_id int [pk, increment]
+user_id int
+google_book_id varchar
+}
+
+Table Books {
+google_book_id varchar [pk]
+title varchar
+author varchar
+cover_image varchar
+buy_links varchar
+}
+
+Ref: Users.user_id < User_Library.user_id
+Ref: Books.google_book_id < User_Library.google_book_id
+Ref: Users.user_id < Reviews.user_id
+Ref: Books.google_book_id < Reviews.google_book_id
