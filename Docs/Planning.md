@@ -77,4 +77,10 @@ BiblioTech is a book discovery and collection manager. Unlike my last project, i
 * The carousel should refresh whenever the page reloads
 * This keeps the homepage dynamic and simple
 
-![BiblioTech_ERD](../static/images/BiblioTech_ERD.png)
+## 7. Entity Relationship Diagram
+
+![BiblioTech_ERD](../app/static/images/BiblioTechERD.png)
+
+* Schema defined as code in `bibliotech_erd.dbml` (DBML format) at the project root
+* View/edit the live diagram by pasting the file contents into [dbdiagram.io](https://dbdiagram.io)
+* User_Library uses a composite primary key (User ID + Book ID) — no separate ID needed, and it prevents duplicate saves
