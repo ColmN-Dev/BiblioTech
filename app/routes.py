@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, redirect, url_for, session
+from flask import Blueprint, render_template, redirect, request, url_for, session
 
 routes = Blueprint("routes", __name__)
 
@@ -10,9 +10,14 @@ def index():
 
 
 # SEARCH
+"""If the search query is empty, redirect to the home page. Otherwise, render the search results page with the query."""
 @routes.route("/search")
 def search_results():
-    return render_template("search_results.html")
+    query = request.args.get("q", "").strip()
+    if not query:
+        return redirect(url_for("routes.index"))
+
+    return render_template("search_results.html", query=query)
 
 
 # BOOK DETAIL
@@ -25,6 +30,12 @@ def book_detail(book_id):
 @routes.route("/library")
 def your_library():
     return render_template("your_library.html")
+
+
+# ABOUT
+@routes.route("/about")
+def about():
+    return render_template("about.html")
 
 
 # AUTH - LOGIN
