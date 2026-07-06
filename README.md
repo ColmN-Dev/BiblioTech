@@ -9,8 +9,13 @@ The codebase currently includes:
 - Environment-based configuration
 - SQLAlchemy initialization
 - Scaffolded routes and templates for core pages
+- Flask-Migrate configured
+- Initial database schema created
+- PostgreSQL database connected
 
-Most routes currently render template placeholders while feature logic (API integration, auth handling, models) is still being built.
+Most routes currently render template placeholders while feature logic, including Google Books API integration, authentication, personal library functionality, and reviews, is still being implemented.
+
+The database models have been designed and the initial migration has been successfully applied using Flask-Migrate.
 
 ## Project Structure
 
@@ -41,14 +46,19 @@ BiblioTech/
 4. (Optional but recommended) set environment variables:
 	- `SECRET_KEY`
 	- `DATABASE_URL`
+5. Apply the database migrations:
 
-Default fallback database URI in config is `postgresql:///default.db`.
+   `python -m flask db upgrade`
+
 For hosted PostgreSQL (for example Render), ensure your `DATABASE_URL` includes `sslmode=require`.
 
 ## Run
 
 - Local development: `python run.py`
 - Gunicorn (deployment): `gunicorn run:app`
+- For database management commands, use:
+
+`python -m flask db <command>`
 
 ## Implemented Routes
 
