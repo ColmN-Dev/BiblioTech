@@ -1,6 +1,6 @@
 # BiblioTech Documentation
 
-**Last updated:** July 6, 2026
+**Last updated:** July 7, 2026
 
 ---
 
@@ -36,6 +36,7 @@ The project was refactored into a package layout:
 - app/config.py
 - app/models.py
 - app/routes.py
+- app/helpers.py
 - app/templates/
 - app/static/
 
@@ -74,7 +75,7 @@ Local startup now uses:
 
 ### Entry point
 
-`run.py` imports `create_app()` and runs the app in debug mode for local development.
+`run.py` imports `create_app()` and runs the application using environment-based configuration. Debug mode is disabled when running in production.
 
 ---
 
@@ -90,7 +91,7 @@ Local startup now uses:
 - `/auth/signup` -> Sign up (`auth/signup.html`)
 - `/auth/logout` -> Clears session and redirects to login
 
-At this stage, routes are implemented as structural placeholders and mainly render templates without full backend logic or API integration.
+At this stage, some routes remain structural placeholders. The `/search` route is fully connected to live Google Books API data via `helpers.py`, and the `/book/<book_id>` route retrieves book details from the API.
 
 ---
 
@@ -103,8 +104,8 @@ Current templates are in `app/templates/` and use Jinja inheritance through `bas
 Pages are present for:
 
 - home
-- search results
-- book detail
+- search results with live Google Books API data
+- book detail with API book information
 - Your library
 - login
 - signup
@@ -117,6 +118,7 @@ Current static files are in `app/static/`:
 - CSS with global reset and header/background styling
 - JS file present but currently empty
 - image assets present for branding/background
+- default book cover image for books without available thumbnails
 
 ---
 
@@ -192,7 +194,6 @@ The database now contains the required tables:
 
 ### Planned (from project plan)
 
-- Google Books API integration
 - search autocomplete
 - homepage quote + carousel
 - genre filters
@@ -211,15 +212,17 @@ The database now contains the required tables:
 - Initial migration completed
 - Deployment entrypoint configured
 - Environment-based configuration
+- Google Books API integration (`helpers.py`)
+- Search results connected to live API data
+- Book detail retrieval using Google Books API
+- Default cover handling for books without available thumbnails
 
 ---
 
 ## Current Limitations
 
-1. Google Books API integration has not yet been connected.
-2. Authentication logic is still to be implemented.
-3. Search functionality is currently scaffolded.
-4. Library and review functionality have not yet been connected to the database.
+1. Authentication logic is still to be implemented.
+2. Library and review functionality have not yet been connected to the database.
 
 ---
 
@@ -229,6 +232,25 @@ The database now contains the required tables:
 2. Keep configuration environment-driven to support local and deployed environments.
 3. Separate routes using blueprints for easier organisation.
 4. Initialise SQLAlchemy early so database development could begin before implementing application features.
+5. Separate API request logic into `helpers.py` to keep routes cleaner.
+
+---
+
+## Helpers (API Integration)
+
+- `fetch_json(params)` — Centralised request handler. Sends params to Google Books API, handles errors (timeouts, bad responses, JSON parse failures), returns parsed JSON or None.
+- `search_books(query, max_results, start_index, order_by)` — Search by title, author, or keyword. Used by `/search` route.
+- `get_book_details(volume_id)` — Fetch single book details. Used by `/book/<book_id>` route.
+- `get_random_books(count)` — Random books for homepage carousel. Picks random letter + random startIndex to avoid seeding issues.
+
+Cover fallback handling provides a default image when Google Books API does not return a thumbnail.
+
+**Key caveat:** Google Books API quota is 1,000 requests/day free tier. Each page load = 1 request.
+
+**References:**
+
+- [Google Books API docs](https://developers.google.com/books/docs/v1/using)
+- Pattern reused from GlobalGrub helpers architecture
 
 ---
 
@@ -292,6 +314,18 @@ I reorganised the project into a Flask application factory structure using an `a
 
 ---
 
+### Challenge 5: Integrating the Google Books API
+
+**Challenge**
+
+Building the API integration layer (`helpers.py`) required connecting several new concepts at once — external requests, error handling, and environment variables. I also accidentally exposed my live API key by pasting a request URL that included it.
+
+**Solution**
+
+I structured `helpers.py` using the same pattern as my GlobalGrub project, with a shared `fetch_json()` function for error handling and smaller functions built on top for specific needs. When the API key was exposed, I regenerated it through Google Cloud Console and confirmed `.env` was excluded via `.gitignore` before continuing.
+
+---
+
 ## What Was Learned So Far
 
 - Structural refactors can look large in Git but still represent organised file changes rather than major logic changes.
@@ -301,17 +335,18 @@ I reorganised the project into a Flask application factory structure using an `a
 - Foreign keys connect related tables together.
 - Composite primary keys can enforce uniqueness in relationship tables such as User_Library.
 - Flask-Migrate manages database changes without manually recreating tables.
+- API keys must be rotated immediately if accidentally exposed, even in local testing.
+- Renaming a function requires updating every file that imports it, or Python raises an `ImportError`.
+- Editor warnings (e.g. Pylance) don't always mean broken code — sometimes it's just interpreter configuration.
+- External API integration requires handling failures and missing data gracefully.
 
 ---
 
 ## Next Milestones
 
 1. Implement user authentication (registration, login and logout).
-2. Integrate the Google Books API.
-3. Connect search results to live API data.
-4. Implement book detail pages using API responses.
-5. Connect User_Library functionality.
-6. Implement review submission and retrieval.
+2. Connect User_Library functionality.
+3. Implement review submission and retrieval.
 
 ---
 
@@ -323,3 +358,6 @@ I reorganised the project into a Flask application factory structure using an `a
 - Flask Migrate documentation: https://flask-migrate.readthedocs.io/en/latest/
 - Gunicorn docs: https://docs.gunicorn.org/
 - Google Books API: https://developers.google.com/books/docs/v1/using
+- DBdiagram.io: https://dbdiagram.io/
+- python-dotenv: https://pypi.org/project/python-dotenv/
+- Requests library: https://requests.readthedocs.io/
