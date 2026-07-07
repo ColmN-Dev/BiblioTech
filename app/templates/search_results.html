@@ -3,5 +3,24 @@
 {% block title %}Search Results | BiblioTech{% endblock %}
 
 {% block content %}
-<h2>Search Results</h2>
+<h2>Search Results for "{{ query }}"</h2>
+
+<div class="results-grid">
+    {% for book in results %}
+        <div class="book-card">
+            <img src="{{ book.volumeInfo.imageLinks.thumbnail if book.volumeInfo.imageLinks else url_for('static', filename='images/no-cover.png') }}" alt="{{ book.volumeInfo.title }}">
+            <h3>{{ book.volumeInfo.title }}</h3>
+            <p>{{ book.volumeInfo.authors | join(", ")  if book.volumeInfo.authors else "Unknown Author" }}</p>
+        </div>
+    {% endfor %}
+</div>
+
+{% if not results %}
+    <p>No results found for "{{ query }}".</p>
+{% endif %}
+
+
+
+
+
 {% endblock %}

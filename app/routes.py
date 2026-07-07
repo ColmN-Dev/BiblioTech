@@ -1,4 +1,5 @@
 from flask import Blueprint, render_template, redirect, request, url_for, session
+from app.helpers import search_books, get_book_details, get_random_books
 
 routes = Blueprint("routes", __name__)
 
@@ -10,20 +11,27 @@ def index():
 
 
 # SEARCH
-"""If the search query is empty, redirect to the home page. Otherwise, render the search results page with the query."""
 @routes.route("/search")
 def search_results():
+    """If the search query is empty, redirect to the home page. Otherwise, render the search results page with the query."""
     query = request.args.get("q", "").strip()
+    
     if not query:
         return redirect(url_for("routes.index"))
+    
+    results = search_books(query)
+    
 
-    return render_template("search_results.html", query=query)
+    return render_template("search_results.html", query=query, results=results)
 
 
 # BOOK DETAIL
 @routes.route("/book/<book_id>")
 def book_detail(book_id):
-    return render_template("book_detail.html", book_id=book_id)
+    book = get_book_details(book_id)
+    if not book:
+        return redirect(url_for("routes.index"))
+    return render_template("book_detail.html", book=book)
 
 
 # LIBRARY
