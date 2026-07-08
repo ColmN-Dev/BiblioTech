@@ -3,5 +3,53 @@
 {% block title %}Home | BiblioTech{% endblock %}
 
 {% block content %}
-<h2>Home</h2>
+
+<section class="hero">
+    <div class="hero-content">
+        <h1>Discover Your Next Great Read</h1>
+
+        <p>
+            Search millions of books, build your own library,
+            and discover your next favourite story.
+        </p>
+
+        <div class="search-container">
+            <form class="search-form" action="{{ url_for('routes.search_results') }}" method="GET">
+
+                <input 
+                    type="text" 
+                    name="query"
+                    placeholder="Search by title, author, or genre..."
+                    required>
+
+                <button type="submit">
+                    Search
+                </button>
+
+            </form>
+        </div>
+
+    </div>
+</section>
+
+
+<section class="featured-books">
+    <h2>Featured Books</h2>
+
+    <div class="carousel">
+        <!-- Carousel slides -->
+    </div>
+</section>
+
+
+<section class="genre-section">
+    <h2>Browse by Genre</h2>
+
+    <div class="genre-grid">
+        <div class="genre-card">
+            <!-- Genre card -->
+        </div>
+    </div>
+</section>
+
 {% endblock %}

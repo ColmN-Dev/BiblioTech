@@ -3,5 +3,18 @@
 {% block title %}Sign Up | BiblioTech{% endblock %}
 
 {% block content %}
-<h2>Sign Up</h2>
+<h1>Sign Up</h1>
+<div class="highlighted-text">Create an account to start managing your personal library.
+{% if error %}
+    <p class="error-message">{{ error }}</p>
+{% else %}
+<form action="{{ url_for('routes.signup') }}" method="POST" class="signup-form">
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <button type="submit">Sign Up</button>
+</form>
+</div>
+{% endif %}
 {% endblock %}
