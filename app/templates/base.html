@@ -3,24 +3,128 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="BiblioTech - Discover books, save your library, and share reviews with a community of readers.">
+    <meta name="author" content="ColmN-Dev">
+    <meta name="keywords" content="books, reading, reviews, library, book discovery, book search, reading community">
+    <meta name="robots" content="index, follow">
+
+    <meta property="og:url" content="https://bibliotech.onrender.com/">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="BiblioTech">
+    <meta property="og:description" content="Discover books, save your library, and share reviews with a community of readers.">
+    <meta property="og:image" content="https://bibliotech.onrender.com/static/images/BiblioTech_Logo.png">
+    <meta property="og:image:width" content="1200">
+    <meta property="og:image:height" content="630">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="BiblioTech">
+    <meta name="twitter:description" content="Discover books, save your library, and share reviews with a community of readers.">
+    <meta name="twitter:image" content="https://bibliotech.onrender.com/static/images/BiblioTech_Logo.png">
+
     <title>{% block title %}BiblioTech{% endblock %}</title>
+
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ url_for('static', filename='images/favicon-16x16.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ url_for('static', filename='images/favicon-32x32.png') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='images/favicon.png') }}">
+
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ url_for('static', filename='images/apple-touch-icon.png') }}">
+
+    <link rel="manifest" href="{{ url_for('static', filename='images/site.webmanifest') }}">
+
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400..900&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <header>
-        <h1>BiblioTech</h1>
-        <nav>
+    <header class="navbar">
+    <div class="navbar-inner">
+
+        <div class="logo-section">
+            <img src="{{ url_for('static', filename='images/BiblioTech_Logo.png') }}"
+                 alt="BiblioTech Logo"
+                 loading="lazy">
+
+            <h1 class="site-title">
+                <a href="{{ url_for('routes.index') }}">BiblioTech</a>
+            </h1>
+        </div>
+
+        <nav class="nav-links" aria-label="Primary navigation">
             <a href="{{ url_for('routes.index') }}">Home</a>
             <a href="{{ url_for('routes.about') }}">About</a>
             <a href="{{ url_for('routes.your_library') }}">Your Library</a>
-            <a href="{{ url_for('routes.signup') }}">Sign Up</a>
+            <a href="{{ url_for('routes.signup') }}">Sign up</a>
             <a href="{{ url_for('routes.login') }}">Login</a>
+
+            <button type="button"
+                    id="theme-toggle"
+                    class="dark-mode-toggle"
+                    aria-label="Toggle dark mode">
+
+                <img id="theme-icon"
+                     src="{{ url_for('static', filename='images/moon.png') }}"
+                     alt="Toggle dark mode"
+                     loading="lazy">
+            </button>
         </nav>
+
+        <button class="hamburger"
+                id="hamburger"
+                aria-label="Toggle mobile menu"
+                aria-controls="mobileMenu"
+                aria-expanded="false">
+
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+
+    </div>
     </header>
 
-    <main>
-        {% block content %}{% endblock %}
-    </main>
+    <div class="mobile-menu"
+        id="mobileMenu"
+        role="navigation"
+        aria-label="Mobile navigation"
+        aria-hidden="true">
+
+        <a href="{{ url_for('routes.index') }}">Home</a>
+        <a href="{{ url_for('routes.about') }}">About</a>
+        <a href="{{ url_for('routes.your_library') }}">Your Library</a>
+        <a href="{{ url_for('routes.signup') }}">Sign up</a>
+        <a href="{{ url_for('routes.login') }}">Login</a>
+
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=True) %}
+        {% if messages %}
+            <div class="flash-container">
+                {% for category, message in messages %}
+                    {% if category == "success" %}
+                        <div class="flash success">
+                    {% elif category == "error" %}
+                        <div class="flash error">
+                    {% else %}
+                        <div class="flash info">
+                    {% endif %}
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    {% block content %}
+    {% endblock %}
+
+    <footer class="footer">
+        <img src="{{ url_for('static', filename='images/BiblioTech_Logo.png') }}" alt="BiblioTech Logo" class="footer-icon" loading="lazy">
+        <p class="footer-text">BiblioTech - Discover Your Next Great Read</p>
+        <p class="footer-text">Search, Save, and Review Books from a World of Stories</p>
+        <p class="footer-text">© 2026 BiblioTech. All rights reserved.</p>
+        <p class="footer-text">Developed by ColmN-Dev</p>
+    </footer>
 
     <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 </body>
