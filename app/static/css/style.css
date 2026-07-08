@@ -80,7 +80,7 @@ h1, h2, h3, h4, h5, h6 {
   font-family: var(--heading-font);
   font-weight: 700;
   line-height: 1.2;
-  color: var(--text-primary);
+  color: var(--heading-color);
   letter-spacing: 0.5px;
 }
 
@@ -108,7 +108,7 @@ h4 {
 
 p {
     line-height: 1.7;
-    color: var(--text-primary);
+    color: var(--paragraph-color);
     margin-bottom: 1rem;
     text-align: center;
 }
