@@ -288,22 +288,36 @@ header,
     top: 0;
     right: -280px;
     width: 280px;
-    height: 100%;
-    background: rgba(43, 43, 43, 0.85);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    height: 100vh;
+    max-height: 100vh;
+
+    background: rgba(43, 43, 43, 0.95);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
     padding: 5rem 2rem 2rem;
+
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
+
     z-index: 999;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
     transition: right 0.3s ease;
-    visibility: hidden;
+    -webkit-overflow-scrolling: touch;
 }
 
 .mobile-menu.open {
     right: 0;
     visibility: visible;
+}
+
+.mobile-toggle {
+    margin-top: 1rem;
+    justify-content: flex-start;
 }
 
 body.menu-open {
