@@ -5,33 +5,32 @@ import os
 from dotenv import load_dotenv
 load_dotenv()
 
-# Set the base URL for the Google Books API
-Base_URL = "https://www.googleapis.com/books/v1/volumes"
+BASE_URL = "https://www.googleapis.com/books/v1/volumes"
 
-# Get the API key from environment variables
 API_KEY = os.environ.get("GOOGLE_BOOKS_API_KEY")  
+if not API_KEY:
+    raise RuntimeError("Google Books API key not found. Please set the 'GOOGLE_BOOKS_API_KEY' environment variable.")
 
 # Google Books API needs API key passed as a query param on every request
 
-def fetch_json(params):
+def fetch_json(params, retries=2, url=BASE_URL):
     """Send request to fetch JSON data from the API."""
-    try:
-        params["key"] = API_KEY  # Add the API key to the parameters
-        response = requests.get(Base_URL , params=params, timeout=10)
-        # Raise an error for bad HTTP responses (e.g. 404, 500)
-        response.raise_for_status()
-        
-        return response.json()
     
-    # Handle JSON parsing errors and print an error message for debugging
-    except ValueError:
-        print("Error parsing JSON response.")
-        return None
+    # Retry mechanism for temporary network or API failures
+    for attempt in range(retries + 1):
+        try:
+            request_params = { **params, "key": API_KEY }
+            response = requests.get(url, params=request_params, timeout=10)
+            
+            # Raise an error for bad HTTP responses (e.g. 404, 500)
+            response.raise_for_status()
+            return response.json()
     
     # Handle any exceptions that occur during the request and print an error message
-    except requests.RequestException as e:
-        print(f"Error fetching data: {e}")
-        return None
+        except requests.RequestException as e:
+            print(f"Attempt {attempt + 1} failed: {e}")
+        if attempt == retries:
+            return None
     
 # Search Results page 
 def search_books(query, max_results=20, start_index=0, order_by="relevance"):
@@ -43,21 +42,23 @@ def search_books(query, max_results=20, start_index=0, order_by="relevance"):
         "orderBy": order_by,
         "printType": "books" # Restrict results to books only
     })
-    return data.get("items") if data else []
+    
+    if not data:
+        return None  # Return None if the API request failed
+    
+    return data.get("items", [])
 
 def get_book_details(volume_id):
     """Get detailed information about a specific book using its volume ID."""
-    try:
-        response = requests.get(f"{Base_URL}/volumes/{volume_id}", params={"key": API_KEY}, timeout=10)
-        response.raise_for_status()
-        return response.json()
-    except requests.RequestException as e:
-        print(f"Error fetching book {volume_id}: {e}")
-        return None
+    
+    return fetch_json(
+        {},
+        url=f"{BASE_URL}/{volume_id}"
+    )
     
 def get_random_books(count=4):
     """Fetch a list of random books for the homepage carousel on each page refresh."""
-    # Use a random search term/letter to get a variety of books
+   
     letters = "abcdefghijklmnopqrstuvwxyz"
     query = random.choice(letters)
     start_index = random.randint(0, 300)  # Random start index for unique results
@@ -68,7 +69,8 @@ def get_random_books(count=4):
         "startIndex": start_index
     })
     
-    items = data.get("items") if data else []
+    # Return only the requested number of books, or an empty list if no items are found
+    items = data.get("items", []) if data else []
     return items[:count]  # Return only the requested number of books
     
     
