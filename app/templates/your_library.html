@@ -3,6 +3,13 @@
 {% block title %}Your Library | BiblioTech{% endblock %}
 
 {% block content %}
+
+<div class="back-btn-container">
+<a href="{{ url_for('routes.index') }}" class="btn">
+    &larr; Back to Home
+</a>
+</div>
+
 <h1>Your Library</h1>
 <p class="highlighted-text">Here you can manage your personal book collection.</p>
 {% endblock %}

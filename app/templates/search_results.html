@@ -3,24 +3,35 @@
 {% block title %}Search Results | BiblioTech{% endblock %}
 
 {% block content %}
+
+    <div class="back-btn-container">
+    <a href="{{ url_for('routes.index') }}" class="btn">
+        &larr; Back to Home
+    </a>
+    </div>
+
 <h1>Search Results for "{{ query }}"</h1>
 
 <div class="results-grid">
     {% for book in results %}
+    <a href="{{ url_for('routes.book_detail', book_id=book.id) }}">
         <div class="book-card">
             <img src="{{ book.volumeInfo.imageLinks.thumbnail if book.volumeInfo.imageLinks else url_for('static', filename='images/no-cover.png') }}" alt="{{ book.volumeInfo.title }}">
             <h3>{{ book.volumeInfo.title }}</h3>
             <p>{{ book.volumeInfo.authors | join(", ")  if book.volumeInfo.authors else "Unknown Author" }}</p>
         </div>
+    </a>
     {% endfor %}
 </div>
 
-{% if not results %}
-    <p>No results found for "{{ query }}".</p>
+{% if error %}
+    <div class="error-message">
+        <p>{{ error }}</p>
+    </div>
+{% elif not results %}
+    <div class="empty-state">
+        <p class="highlighted-text">No results found for "{{ query }}".</p>
+        <a href="{{ url_for('routes.index') }}" class="btn">Back to Home</a>
+    </div>
 {% endif %}
-
-
-
-
-
 {% endblock %}

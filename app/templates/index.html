@@ -13,21 +13,37 @@
             and discover your next favourite story.
         </p>
 
-        <div class="search-container">
-            <form class="search-form" action="{{ url_for('routes.search_results') }}" method="GET">
+            <div class="search-container">
 
-                <input 
-                    type="text" 
-                    name="query"
-                    placeholder="Search by title, author, or genre..."
-                    required>
+                <form class="search-form" method="GET" action="{{ url_for('routes.search_results') }}">
 
-                <button type="submit">
-                    Search
-                </button>
+                    <div class="search-input-wrapper">
 
-            </form>
-        </div>
+                        <input 
+                            type="text"
+                            id="searchInput"
+                            name="query"
+                            placeholder="Search books..."
+                            value="{{ query if query else '' }}"
+                        >
+
+                        <button 
+                            type="button"
+                            id="clearBtn"
+                            class="search-clear-btn"
+                            aria-label="Clear search">
+                            ×
+                        </button>
+
+                    </div>
+
+                    <button type="submit">
+                        Search
+                    </button>
+
+                </form>
+
+            </div>
 
     </div>
 </section>
