@@ -31,13 +31,14 @@ def _add_custom_store_links(book_item):
     volume_info["customLinks"] = {}
 
     if isbn:
-        # Sanitize ISBN by removing spaces or hyphens if any exist
-        clean_isbn = isbn.replace("-", "").replace(" ", "")
-        volume_info["customLinks"] = {
-            "amazon": f"https://amazon.com{clean_isbn}",
-            "goodreads": f"https://goodreads.com{clean_isbn}",
-            "worldcat": f"https://worldcat.org{clean_isbn}"
-        }
+    # Sanitize ISBN by removing spaces or hyphens if any exist
+    clean_isbn = isbn.replace("-", "").replace(" ", "")
+
+    volume_info["customLinks"] = {
+        "amazon": f"https://www.amazon.com/s?k={clean_isbn}",
+        "goodreads": f"https://www.goodreads.com/search?q={clean_isbn}",
+        "worldcat": f"https://search.worldcat.org/search?q={clean_isbn}"
+    }
 
     return book_item
 
