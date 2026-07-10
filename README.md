@@ -1,24 +1,33 @@
 # BiblioTech
 
-BiblioTech is a Flask-based book discovery application. The project has been refactored to an app factory + package structure and is set up for PostgreSQL via Flask-SQLAlchemy.
+BiblioTech is a Flask-based book discovery application. The project has been refactored into a Flask application factory + package structure and uses PostgreSQL through Flask-SQLAlchemy.
+
+The application uses the Google Books API to allow users to search for books, view book details, and explore available book information.
 
 ## Current Status
 
 The codebase currently includes:
-- App factory setup with blueprint registration
+
+- Flask application factory setup with blueprint registration
 - Environment-based configuration
 - SQLAlchemy initialization
-- Scaffolded routes and templates for core pages
-- Flask-Migrate configured
-- Initial database schema created
-- PostgreSQL database connected
-- Google Books API integration for book searching and book detail retrieval
+- PostgreSQL database connection
+- Flask-Migrate configuration
+- Initial database schema and migrations
+- Google Books API integration
+- Centralised API request handling with timeout and retry support
+- Search functionality
+- Book detail pages
+- Responsive frontend layouts
+- Styled authentication pages
+- Password visibility toggle
+- Search input clearing functionality
 
-The application now supports querying books through the Google Books API and displaying search results and individual book details.
-
-Additional features, including authentication, personal library functionality, and reviews, are still being implemented.
+Additional features, including authentication logic, personal library functionality, and reviews, are still being implemented.
 
 The database models have been designed and the initial migration has been successfully applied using Flask-Migrate.
+
+---
 
 ## Project Structure
 
@@ -38,6 +47,8 @@ BiblioTech/
   data/
   docs/
 ```
+
+---
 
 ## Setup
 
@@ -62,6 +73,8 @@ python -m flask db upgrade
 ```
 
 For hosted PostgreSQL (for example Render), ensure your `DATABASE_URL` includes `sslmode=require`.
+
+---
 
 ## Run
 
@@ -98,3 +111,4 @@ python -m flask db <command>
 
 - Planning: [docs/Planning.md](docs/Planning.md)
 - Documentation: [docs/BiblioTech-Documentation.md](docs/BiblioTech-Documentation.md)
+
