@@ -11,21 +11,47 @@ API_KEY = os.environ.get("GOOGLE_BOOKS_API_KEY")
 if not API_KEY:
     raise RuntimeError("Google Books API key not found. Please set the 'GOOGLE_BOOKS_API_KEY' environment variable.")
 
+def _add_custom_store_links(book_item):
+    """Helper to inject third-party marketplace links using the book's ISBN."""
+    if not book_item or "volumeInfo" not in book_item:
+        return book_item
+
+    volume_info = book_item["volumeInfo"]
+    identifiers = volume_info.get("industryIdentifiers", [])
+    
+    # Try to find ISBN_13 first, fall back to ISBN_10
+    isbn = None
+    for identifier in identifiers:
+        if identifier.get("type") in ["ISBN_13", "ISBN_10"]:
+            isbn = identifier.get("identifier")
+            if identifier.get("type") == "ISBN_13":
+                break  # Prefer ISBN_13
+
+    # Initialize the custom links dictionary
+    volume_info["customLinks"] = {}
+
+    if isbn:
+        # Sanitize ISBN by removing spaces or hyphens if any exist
+        clean_isbn = isbn.replace("-", "").replace(" ", "")
+        volume_info["customLinks"] = {
+            "amazon": f"https://amazon.com{clean_isbn}",
+            "goodreads": f"https://goodreads.com{clean_isbn}",
+            "worldcat": f"https://worldcat.org{clean_isbn}"
+        }
+    
+    return book_item
+
 def fetch_json(params, retries=2, url=BASE_URL):
     """Send request to fetch JSON data from the API."""
-    
     for attempt in range(retries + 1):
         try:
             request_params = { **params, "key": API_KEY }
             response = requests.get(url, params=request_params, timeout=10)
-            
-            # Raise an error for bad HTTP responses (e.g. 404, 500, 400)
             response.raise_for_status()
             return response.json()
             
         except requests.RequestException as e:
             print(f"Attempt {attempt + 1} failed: {e}")
-            # If this was the last attempt, break out and return None
             if attempt == retries:
                 return None
 
@@ -41,27 +67,24 @@ def search_books(query, max_results=20, start_index=0, order_by="relevance"):
     })
     
     if not data:
-        return []  # Return empty list instead of None to prevent frontend crashes
+        return []
     
-    return data.get("items", [])
+    items = data.get("items", [])
+    return [_add_custom_store_links(item) for item in items]
 
 def get_book_details(volume_id):
     """Get detailed information about a specific book using its volume ID."""
-    return fetch_json(
-        {},
-        url=f"{BASE_URL}/{volume_id}"
-    )
+    data = fetch_json({}, url=f"{BASE_URL}/{volume_id}")
+    return _add_custom_store_links(data) if data else None
     
 def get_random_books(count=5):
     """Fetch a list of popular, random books for the homepage carousel."""
-    # A list of broad, popular categories that guarantee high-quality results
     popular_genres = [
         "fiction", "mystery", "thriller", "fantasy", "sci-fi", 
         "biography", "history", "science", "adventure", "romance",
         "philosophy", "psychology", "self-help", "business", "technology"
     ]
     
-    # Try up to 3 distinct random generations if an index returns 0 results
     for _ in range(3):
         query = random.choice(popular_genres)
         start_index = random.randint(0, 250) 
@@ -75,8 +98,9 @@ def get_random_books(count=5):
         })
         
         if data and "items" in data:
-            return data["items"][:count]
+            items = data["items"][:count]
+            return [_add_custom_store_links(item) for item in items]
             
-    # Absolute emergency fallback if all random attempts completely failed
     fallback_data = fetch_json({"q": "bestseller", "maxResults": count, "startIndex": 0})
-    return fallback_data.get("items", [])[:count] if fallback_data else []
+    fallback_items = fallback_data.get("items", [])[:count] if fallback_data else []
+    return [_add_custom_store_links(item) for item in fallback_items]
