@@ -33,13 +33,12 @@ def _add_custom_store_links(book_item):
     if isbn:
         # Sanitize ISBN by removing spaces or hyphens if any exist
         clean_isbn = isbn.replace("-", "").replace(" ", "")
-                volume_info["customLinks"] = {
+        volume_info["customLinks"] = {
             "amazon": f"https://amazon.com{clean_isbn}",
             "goodreads": f"https://goodreads.com{clean_isbn}",
             "worldcat": f"https://worldcat.org{clean_isbn}"
         }
 
-    
     return book_item
 
 def fetch_json(params, retries=2, url=BASE_URL):
