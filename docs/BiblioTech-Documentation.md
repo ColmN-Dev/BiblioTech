@@ -1,22 +1,22 @@
 # BiblioTech Documentation
 
-**Last updated:** July 7, 2026
+**Last updated:** July 10, 2026
 
 ---
 
 ## Overview
 
-BiblioTech is a Flask-based book discovery web application designed to support searching and exploring books, then extending into user accounts, reviews, and personal library features.
+BiblioTech is a Flask-based book discovery web application designed to allow users to search and explore books, with future support for user accounts, reviews, and personal library features.
 
-The long-term product direction is powered by the Google Books API, while the current codebase has already been restructured into a scalable Flask app factory layout.
+The application uses the Google Books API as its external data source and has been restructured using a scalable Flask application factory architecture.
 
 ---
 
-## Project Development Summary
+# Project Development Summary
 
-### 1. Initial structure (flat Flask layout)
+## Initial Structure
 
-The project initially used a flat file structure at repository root:
+The project originally used a simple flat Flask structure:
 
 - app.py
 - routes.py
@@ -25,128 +25,145 @@ The project initially used a flat file structure at repository root:
 - templates/
 - static/
 
-This was valid for early development but became harder to maintain as more features were planned.
+This structure was suitable for early development but became harder to maintain as additional features were introduced.
 
-### 2. Migration to package-based structure
+## Migration to Flask Application Factory Structure
 
-The project was refactored into a package layout:
+The project was refactored into a package-based structure:
 
 - run.py
-- app/__init__.py
-- app/config.py
-- app/models.py
-- app/routes.py
-- app/helpers.py
-- app/templates/
-- app/static/
+- app/
+  - __init__.py
+  - config.py
+  - models.py
+  - routes.py
+  - helpers.py
+  - templates/
+  - static/
 
-This follows Flask best practices and provides a better structure for future development.
+This improved separation of responsibilities and provides a better foundation for future expansion.
 
-### 3. Runtime and deployment updates
+## Runtime and Deployment
 
-Deployment was updated to use the new entrypoint pattern:
+Deployment was updated to use:
 
-- Procfile: `web: gunicorn run:app`
+`Procfile`
 
-Local startup now uses:
+```text
+web: gunicorn run:app
+```
 
-- `python run.py`
+Local development runs through:
+
+```text
+python run.py
+```
 
 ---
 
-## Current Architecture
+# Current Architecture
 
-### App factory
+## Application Factory
 
-`app/__init__.py` defines:
+`app/__init__.py` handles:
 
-- Flask app creation
-- config loading from `Config`
-- SQLAlchemy initialization (`db.init_app(app)`)
-- blueprint registration for routes
+- Flask application creation
+- Configuration loading
+- SQLAlchemy initialisation
+- Blueprint registration
 
-### Configuration
+## Configuration
 
-`app/config.py` currently provides:
+`app/config.py` provides:
 
-- `SECRET_KEY` from environment variable
-- `SQLALCHEMY_DATABASE_URI` from `DATABASE_URL`
+- `SECRET_KEY` from environment variables
+- `SQLALCHEMY_DATABASE_URI`
 - `SQLALCHEMY_TRACK_MODIFICATIONS = False`
 
-### Entry point
+Sensitive configuration is stored outside the codebase using environment variables.
 
-`run.py` imports `create_app()` and runs the application using environment-based configuration. Debug mode is disabled when running in production.
+## Entry Point
 
----
-
-## Current Implemented Pages and Routes
-
-`app/routes.py` currently provides page-render routes:
-
-- `/` -> Home (`index.html`)
-- `/search` -> Search results (`search_results.html`)
-- `/book/<book_id>` -> Book detail (`book_detail.html`)
-- `/library` -> Your Library (`your_library.html`)
-- `/auth/login` -> Login (`auth/login.html`)
-- `/auth/signup` -> Sign up (`auth/signup.html`)
-- `/auth/logout` -> Clears session and redirects to login
-
-At this stage, some routes remain structural placeholders. The `/search` route is fully connected to live Google Books API data via `helpers.py`, and the `/book/<book_id>` route retrieves book details from the API.
+`run.py` imports `create_app()` and starts the application using environment-based configuration.
 
 ---
 
-## Frontend Status
+# Current Routes
 
-### Templates
+`app/routes.py` currently provides:
 
-Current templates are in `app/templates/` and use Jinja inheritance through `base.html`.
+| Route | Purpose |
+|---|---|
+| `/` | Homepage |
+| `/search` | Search results |
+| `/book/<book_id>` | Book details |
+| `/library` | User library placeholder |
+| `/auth/login` | Login page |
+| `/auth/signup` | Signup page |
+| `/auth/logout` | Clears session |
 
-Pages are present for:
-
-- home
-- search results with live Google Books API data
-- book detail with API book information
-- Your library
-- login
-- signup
-- about
-
-### Static assets
-
-Current static files are in `app/static/`:
-
-- CSS with global reset and header/background styling
-- JS file present but currently empty
-- image assets present for branding/background
-- default book cover image for books without available thumbnails
+The search route is connected to live Google Books API data, and book detail pages retrieve individual book information from the API.
 
 ---
 
-## Database and Models Status
+# Frontend Status
+
+Templates are stored in:
+
+```text
+app/templates/
+```
+
+and use Jinja template inheritance through `base.html`.
+
+Current pages:
+
+- Home
+- Search results
+- Book detail
+- Your Library
+- Login
+- Signup
+- About
+
+Static assets:
+
+```text
+app/static/
+```
+
+Contains:
+
+- CSS styling
+- JavaScript files
+- Images and branding assets
+- Default book cover fallback image
+
+---
+
+# Database and Models
 
 SQLAlchemy and Flask-Migrate are configured through the application factory.
 
-The initial database migration has been generated and applied successfully.
-
-Current models implemented:
+Current models:
 
 - User
 - Book
 - User_Library
 - Review
 
-### User
+## User
 
-Stores registered users with:
+Stores account information:
 
 - id
 - username
 - password_hash
 - date_created
 
-### Book
+## Book
 
-Stores Google Books API book information:
+Stores Google Books API information:
 
 - google_book_id (Primary Key)
 - title
@@ -155,11 +172,11 @@ Stores Google Books API book information:
 - buy_links
 - date_created
 
-### User_Library
+## User_Library
 
-Represents the relationship between a user and their saved books.
+Represents saved books.
 
-Composite Primary Key:
+Composite primary key:
 
 - user_id
 - google_book_id
@@ -168,196 +185,344 @@ Additional field:
 
 - date_created
 
-### Review
+## Review
 
-Stores user reviews for books.
+Stores user reviews:
 
-Fields:
-
-- review_id (Primary Key)
-- user_id (Foreign Key)
-- google_book_id (Foreign Key)
+- review_id
+- user_id
+- google_book_id
 - rating
 - review_text
 - date_created
 
-The database now contains the required tables:
-
-- users
-- books
-- user_library
-- reviews
-
 ---
 
-## Planned Features vs Current State
+# Planned Features vs Current State
 
-### Planned (from project plan)
+## Planned Features
 
-- search autocomplete
-- homepage quote + carousel
-- genre filters
-- user authentication and protected library
-- reviews/ratings
-- full database schema (Users, Books, User_Library, Reviews)
+- Search autocomplete
+- Homepage quote and carousel
+- Genre filtering
+- Authentication
+- Personal library system
+- Reviews and ratings
 
-### Current implemented state
+## Completed Features
 
 - Flask application factory architecture
-- Blueprint routing structure
-- SQLAlchemy configured
-- Flask-Migrate configured
-- Database schema created
-- Core model classes implemented
-- Initial migration completed
-- Deployment entrypoint configured
+- Blueprint routing
+- SQLAlchemy integration
+- Flask-Migrate setup
+- Database schema creation
+- Model implementation
+- Deployment configuration
 - Environment-based configuration
-- Google Books API integration (`helpers.py`)
-- Search results connected to live API data
-- Book detail retrieval using Google Books API
-- Default cover handling for books without available thumbnails
+- Google Books API integration
+- Search functionality
+- Book detail retrieval
+- Missing cover fallback handling
+- API reliability improvements with timeout and retry handling
+- Cleaned API descriptions containing HTML markup
+- Responsive frontend layouts
+- Styled authentication pages
+- Password visibility toggle
+- Search input clear functionality
+- Improved navigation with back-to-home buttons
 
 ---
 
-## Current Limitations
+# Current Limitations
 
-1. Authentication logic is still to be implemented.
-2. Library and review functionality have not yet been connected to the database.
-
----
-
-## Key Design Decisions
-
-1. Move to app factory pattern early to avoid restructuring later.
-2. Keep configuration environment-driven to support local and deployed environments.
-3. Separate routes using blueprints for easier organisation.
-4. Initialise SQLAlchemy early so database development could begin before implementing application features.
-5. Separate API request logic into `helpers.py` to keep routes cleaner.
+1. Authentication pages have been created, but registration and login logic are not yet connected.
+2. Library and review functionality are not yet connected to the database.
+3. Search autocomplete and filtering features are still planned.
 
 ---
 
-## Helpers (API Integration)
+# Key Design Decisions
 
-- `fetch_json(params)` — Centralised request handler. Sends params to Google Books API, handles errors (timeouts, bad responses, JSON parse failures), returns parsed JSON or None.
-- `search_books(query, max_results, start_index, order_by)` — Search by title, author, or keyword. Used by `/search` route.
-- `get_book_details(volume_id)` — Fetch single book details. Used by `/book/<book_id>` route.
-- `get_random_books(count)` — Random books for homepage carousel. Picks random letter + random startIndex to avoid seeding issues.
-
-Cover fallback handling provides a default image when Google Books API does not return a thumbnail.
-
-**Key caveat:** Google Books API quota is 1,000 requests/day free tier. Each page load = 1 request.
-
-**References:**
-
-- [Google Books API docs](https://developers.google.com/books/docs/v1/using)
-- Pattern reused from GlobalGrub helpers architecture
+1. Adopted the Flask application factory pattern early to avoid future restructuring.
+2. Used environment variables to separate sensitive configuration from application code.
+3. Used Flask Blueprints to keep routes organised.
+4. Initialised SQLAlchemy early to allow database development alongside application development.
+5. Separated API logic into `helpers.py` to keep routes clean.
 
 ---
 
-## Challenges Faced and Solutions
+# Google Books API Integration
 
-### Challenge 1: Redesigning the Entity Relationship Diagram (ERD)
+API functionality is contained inside:
 
-**Challenge**
+```text
+app/helpers.py
+```
 
-My original ERD no longer reflected the structure of the application as the project developed. Some relationships and keys needed to be redesigned.
+## Functions
 
-**Solution**
+### `fetch_json(params, retries, url)`
 
-I researched database design tools and found DBdiagram.io. Using this, I recreated the ERD, which helped me visualise the relationships between tables and understand where composite primary keys and foreign keys were required before implementing the models.
+Centralised API request handler.
 
----
+Handles:
 
-### Challenge 2: Learning Flask-Migrate
+- HTTP errors
+- Timeouts
+- JSON parsing failures
+- Retry attempts
+- Missing API responses
+- API key injection
 
-**Challenge**
+The optional URL parameter allows the same request logic to be reused for both search requests and individual book detail requests.
 
-I had not previously used Flask-Migrate, so understanding how it fitted into the project required additional research.
+Returns parsed JSON or `None`.
 
-Another challenge was that Flask CLI commands such as `flask db migrate` and `flask db upgrade` were not recognised directly in the terminal.
+### `search_books(query, max_results, start_index, order_by)`
 
-**Solution**
+Searches books by:
 
-I installed Flask-Migrate and configured it within the Flask application factory.
+- title
+- author
+- keyword
 
-The CLI issue was resolved by running Flask commands through Python instead:
+Used by the search route.
 
-- `python -m flask db init`
-- `python -m flask db migrate -m "initial migration"`
-- `python -m flask db upgrade`
+### `get_book_details(volume_id)`
 
-This allowed the commands to run using the correct Python environment.
+Retrieves information about a single book.
 
----
+Used by the book detail page.
 
-### Challenge 3: Designing the Database Models
+### `get_random_books(count)`
 
-**Challenge**
-
-Designing the database models required understanding how tables connected and deciding which fields should be primary keys, foreign keys, or normal columns.
-
-**Solution**
-
-I worked through each model individually, researched SQLAlchemy where necessary, and refined the structure until it matched the application's requirements.
-
----
-
-### Challenge 4: Refactoring the Project Structure
-
-**Challenge**
-
-The project originally used a simple Flask structure, but this became harder to manage as more features were planned.
-
-**Solution**
-
-I reorganised the project into a Flask application factory structure using an `app` package, separating configuration, models, routes, templates and static files into a more scalable layout.
+Retrieves random books for homepage content.
 
 ---
 
-### Challenge 5: Integrating the Google Books API
+# API Reliability Improvements
 
-**Challenge**
+After integrating the Google Books API into the frontend, several reliability issues were discovered.
 
-Building the API integration layer (`helpers.py`) required connecting several new concepts at once — external requests, error handling, and environment variables. I also accidentally exposed my live API key by pasting a request URL that included it.
+Improvements added:
 
-**Solution**
+- Centralised API requests
+- Timeout handling
+- Retry logic for temporary failures
+- Differentiation between:
+- API failure (`None`)
+- Successful search with no results (`[]`)
+- Fallback handling for missing book information
 
-I structured `helpers.py` using the same pattern as my GlobalGrub project, with a shared `fetch_json()` function for error handling and smaller functions built on top for specific needs. When the API key was exposed, I regenerated it through Google Cloud Console and confirmed `.env` was excluded via `.gitignore` before continuing.
-
----
-
-## What Was Learned So Far
-
-- Structural refactors can look large in Git but still represent organised file changes rather than major logic changes.
-- Flask app factory structure is cleaner for medium and larger projects than a flat single-file layout.
-- Environment variables help keep sensitive configuration separate from the code.
-- SQLAlchemy models represent database tables.
-- Foreign keys connect related tables together.
-- Composite primary keys can enforce uniqueness in relationship tables such as User_Library.
-- Flask-Migrate manages database changes without manually recreating tables.
-- API keys must be rotated immediately if accidentally exposed, even in local testing.
-- Renaming a function requires updating every file that imports it, or Python raises an `ImportError`.
-- Editor warnings (e.g. Pylance) don't always mean broken code — sometimes it's just interpreter configuration.
-- External API integration requires handling failures and missing data gracefully.
+This prevents temporary API issues from incorrectly displaying "no results found".
 
 ---
 
-## Next Milestones
+# Frontend Improvements
 
-1. Implement user authentication (registration, login and logout).
+Several frontend improvements were implemented after connecting API functionality to the user interface.
+
+Improvements added:
+
+- Improved authentication page styling using shared form layouts.
+- Added password visibility toggle functionality using JavaScript.
+- Added search input clearing through a clear button and Escape key support.
+- Improved book detail layout for different screen sizes.
+- Added fallback handling for long API-generated text.
+- Added navigation buttons to improve movement between pages.
+
+The frontend uses responsive CSS techniques to maintain usability across desktop, tablet, and mobile devices.
+
+---
+
+# Design Pattern Note: Facade
+
+A Facade pattern was considered for the API integration.
+
+However, `helpers.py` currently contains simple stateless functions, meaning introducing a class-based facade would add unnecessary complexity.
+
+A Facade may become useful in the future if BiblioTech expands to support multiple external APIs or shared API management logic.
+
+---
+
+# Challenges Faced and Solutions
+
+## Challenge 1: Redesigning the ERD
+
+### Challenge
+
+The original ERD no longer matched the application's evolving requirements.
+
+### Solution
+
+DBdiagram.io was used to redesign relationships and understand primary keys, foreign keys, and relationship tables before implementing the database models.
+
+---
+
+## Challenge 2: Learning Flask-Migrate
+
+### Challenge
+
+Understanding database migrations and Flask CLI commands required additional research.
+
+### Solution
+
+Flask-Migrate was installed and configured through the application factory.
+
+Commands were executed through Python:
+
+```text
+python -m flask db init
+python -m flask db migrate -m "initial migration"
+python -m flask db upgrade
+```
+
+This allowed migrations to run using the correct Python environment.
+
+---
+
+## Challenge 3: Designing Database Models
+
+### Challenge
+
+Designing relationships required understanding how tables connect and which fields should be primary or foreign keys.
+
+### Solution
+
+Each model was researched individually and refined until it matched the application requirements.
+
+---
+
+## Challenge 4: Refactoring Project Structure
+
+### Challenge
+
+The original Flask layout became difficult to manage as features increased.
+
+### Solution
+
+The project was reorganised into an application factory structure with separate configuration, models, routes, templates, and static files.
+
+---
+
+## Challenge 5: Google Books API Integration
+
+### Challenge
+
+API integration introduced several new challenges:
+
+- External requests
+- Error handling
+- Environment variables
+- Unexpected API responses
+
+I also accidentally exposed my API key during testing by using a request URL that contained the key. The key was regenerated through Google Cloud Console, and `.env` was confirmed to be excluded using `.gitignore`.
+
+After connecting search functionality to the frontend, intermittent failures were discovered where valid searches sometimes returned no results. Testing showed some requests received HTTP 503 responses from the API.
+
+Additional frontend issues were discovered after integrating API data into templates. Some API descriptions contained HTML markup, which required cleaning before displaying to users.
+
+Frontend testing also revealed layout issues on smaller screens, requiring improvements to wrapping behaviour, button positioning, and responsive styling.
+
+### Solution
+
+A central `fetch_json()` function was created to manage API requests and keep routes separated from external API logic.
+
+The API layer was improved by adding:
+
+- timeout handling
+- HTTP error handling
+- JSON validation
+- retry attempts for temporary failures
+- fallback handling for missing data
+
+The application now differentiates between:
+
+- API request failures (`None`)
+- Successful searches with no matching results (`[]`)
+
+This prevents temporary API issues from incorrectly displaying "no results found" to users.
+
+HTML markup returned inside book descriptions was cleaned before rendering by using Python's `re` module to remove unwanted tags.
+
+---
+
+# What Was Learned So Far
+
+- Large refactors in Git can represent organised restructuring rather than major logic changes.
+- Flask application factories provide better scalability than single-file applications.
+- Environment variables help protect sensitive configuration.
+- Database relationships require careful planning of keys and relationships.
+- Flask-Migrate allows database changes without manually recreating tables.
+- API keys should be rotated immediately if accidentally exposed.
+- External APIs require validation because returned data may not always match expectations.
+- API failures and empty results should be handled separately.
+- Retry logic improves reliability when dealing with temporary failures.
+- API data may require processing before displaying it to users.
+- Python regular expressions can be used to clean unwanted HTML markup from external data.
+- Frontend testing is important because issues may only appear after real API data is displayed.
+- External API responses may require sanitisation before being shown to users.
+- Responsive layouts need testing across multiple screen sizes, not only desktop.
+- Reusable helper functions reduce duplicated API handling logic.
+- Small UI features such as search clearing and password visibility improve usability.
+
+---
+
+# Next Milestones
+
+1. Implement authentication logic (registration, login, logout).
 2. Connect User_Library functionality.
-3. Implement review submission and retrieval.
+3. Implement reviews and ratings.
+4. Add search improvements such as autocomplete and filtering.
 
 ---
 
-## References
+# References
 
-- Flask documentation: https://flask.palletsprojects.com/
-- Flask SQLAlchemy: https://flask-sqlalchemy.palletsprojects.com/
-- Flask App Structure: https://www.colabcodes.com/post/flask-application-structure-organizing-python-web-apps-for-scalability
-- Flask Migrate documentation: https://flask-migrate.readthedocs.io/en/latest/
-- Gunicorn docs: https://docs.gunicorn.org/
-- Google Books API: https://developers.google.com/books/docs/v1/using
-- DBdiagram.io: https://dbdiagram.io/
-- python-dotenv: https://pypi.org/project/python-dotenv/
-- Requests library: https://requests.readthedocs.io/
+- Flask documentation:  
+https://flask.palletsprojects.com/
+
+- Flask SQLAlchemy:  
+https://flask-sqlalchemy.palletsprojects.com/
+
+- Flask Application Structure:  
+https://www.colabcodes.com/post/flask-application-structure-organizing-python-web-apps-for-scalability
+
+- Flask-Migrate documentation:  
+https://flask-migrate.readthedocs.io/
+
+- Gunicorn documentation:  
+https://docs.gunicorn.org/
+
+- Google Books API:  
+https://developers.google.com/books/docs/v1/using
+
+- DBdiagram.io:  
+https://dbdiagram.io/
+
+- python-dotenv:  
+https://pypi.org/project/python-dotenv/
+
+- Requests documentation:  
+https://requests.readthedocs.io/
+
+- Flask Error Handling:  
+https://flask.palletsprojects.com/en/latest/errorhandling/
+
+- Python Logging Documentation:  
+https://docs.python.org/3/library/logging.html
+
+- HTTP Status Codes Reference:  
+https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
+
+- REST API Design Best Practices:  
+https://restfulapi.net/
+
+- Flask Blueprints:  
+https://flask.palletsprojects.com/en/latest/blueprints/
+
+- Flask Application Factories:  
+https://flask.palletsprojects.com/en/latest/patterns/appfactories/
+
+- Alembic Migration Tool:  
+https://alembic.sqlalchemy.org/
