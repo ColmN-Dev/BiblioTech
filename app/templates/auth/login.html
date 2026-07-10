@@ -3,17 +3,79 @@
 {% block title %}Login | BiblioTech{% endblock %}
 
 {% block content %}
-<h1>Login</h1>
-<div class="highlighted-text">Access your account to manage your personal library.
-{% if error %}
-    <p class="error-message">{{ error }}</p>
-{% endif %}
-<form action="{{ url_for('routes.login') }}" method="POST" class="login-form">
-    <label for="username">Username:</label>
-    <input type="text" id="username" name="username" required>
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    <button type="submit">Login</button>
-</form>
-</div>
+
+<section class="auth-container">
+
+
+    <div class="back-btn-container">
+    <a href="{{ url_for('routes.index') }}" class="btn">
+        &larr; Back to Home
+    </a>
+    </div>
+
+    <h1>Login</h1>
+
+    <p class="highlighted-text">
+        Login to access your personal library.
+    </p>
+
+    {% if error %}
+        <p class="error-message">{{ error }}</p>
+    {% else %}
+
+    <form action="{{ url_for('routes.login') }}" method="POST" class="styled-form">
+
+        <div class="form-group">
+            <label for="username">Username:</label>
+            <input 
+                type="text"
+                id="username"
+                name="username"
+                placeholder="Enter username"
+                required>
+        </div>
+
+
+        <div class="form-group">
+            <label for="password">Password:</label>
+
+            <div class="password-field">
+
+                <input 
+                    type="password"
+                    id="password"
+                    name="password"
+                    placeholder="Enter password"
+                    required>
+
+                <button 
+                    type="button"
+                    id="togglePassword"
+                    class="eye-icon open"
+                    aria-label="Show password"
+                    aria-pressed="false">
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <button type="submit" class="btn">
+            Login
+        </button>
+
+    </form>
+
+    <div class="highlighted-text">
+        <div class="form-switch">
+            Don't have an account?
+            <a href="{{ url_for('routes.signup') }}">Sign Up</a>
+        </div>
+    </div>
+
+    {% endif %}
+
+</section>
+
 {% endblock %}
