@@ -2,6 +2,8 @@
 
 (() => {
 
+    // Wrap everything in an IIFE to avoid leaking variables into the global scope.
+
     // ==========================
     // HAMBURGER MENU
     // ==========================
@@ -18,13 +20,13 @@
 
             const isOpen = mobileMenu.classList.contains("open");
 
+            // Keep ARIA state in sync for screen readers.
             hamburger.setAttribute("aria-expanded", String(isOpen));
             mobileMenu.setAttribute("aria-hidden", String(!isOpen));
 
         });
 
 
-        // Close mobile menu after selecting a link
         mobileMenu.querySelectorAll("a").forEach((link) => {
 
             link.addEventListener("click", () => {
@@ -41,13 +43,11 @@
 
     }
 
+
     // ==========================
     // SEARCH INPUT CLEAR BUTTON
     // ==========================
 
-    document.addEventListener("DOMContentLoaded", () => {
-
-    // Get the search input and clear button elements
     const searchInput = document.getElementById("searchInput");
     const clearBtn = document.getElementById("clearBtn");
 
@@ -55,7 +55,6 @@
 
         searchInput.addEventListener("input", () => {
 
-            // Show or hide the clear button based on the input value
             if (searchInput.value.trim() !== "") {
                 clearBtn.classList.add("visible");
             } else {
@@ -64,39 +63,36 @@
 
         });
 
-    // Clear the search input when the clear button is clicked
-    clearBtn.addEventListener("click", () => {
 
-        searchInput.value = "";
-
-        clearBtn.classList.remove("visible");
-
-        searchInput.focus();
-
-    });
-
-    // Clear the search input when the Escape key is pressed
-    searchInput.addEventListener("keydown", (e) => {
-
-        if (e.key === "Escape") {
+        clearBtn.addEventListener("click", () => {
 
             searchInput.value = "";
 
             clearBtn.classList.remove("visible");
 
+            searchInput.focus();
+
+        });
+
+
+        searchInput.addEventListener("keydown", (event) => {
+
+            if (event.key === "Escape") {
+
+                searchInput.value = "";
+
+                clearBtn.classList.remove("visible");
+
+            }
+
+        });
+
+
+        if (searchInput.value.trim() !== "") {
+            clearBtn.classList.add("visible");
         }
 
-    });
-
-    // Show the clear button if the input has a value on page load
-    if (searchInput.value.trim() !== "") {
-        clearBtn.classList.add("visible");
     }
-
-    }
-
-    });
-
 
 
     // ==========================
@@ -109,7 +105,6 @@
     const savedTheme = localStorage.getItem("theme");
 
 
-    // Load saved theme
     if (savedTheme === "dark") {
 
         document.documentElement.setAttribute("data-theme", "dark");
@@ -129,12 +124,12 @@
     }
 
 
-    // Toggle theme 
     themeToggles.forEach(toggle => {
 
         toggle.addEventListener("click", () => {
 
             const currentTheme = document.documentElement.getAttribute("data-theme");
+
 
             if (currentTheme === "dark") {
 
@@ -162,29 +157,217 @@
 
     });
 
+
     // ==========================
-    // PASSWORD TYPE TOGGLE
+    // PASSWORD VISIBILITY TOGGLE
     // ==========================
 
     const eyeIcon = document.getElementById("togglePassword");
     const passwordInput = document.getElementById("password");
 
     if (eyeIcon && passwordInput) {
+
         eyeIcon.addEventListener("click", () => {
+
             if (passwordInput.type === "password") {
+
                 passwordInput.type = "text";
+
                 eyeIcon.classList.add("closed");
                 eyeIcon.classList.remove("open");
+
                 eyeIcon.setAttribute("aria-label", "Hide password");
                 eyeIcon.setAttribute("aria-pressed", "true");
+
             } else {
+
                 passwordInput.type = "password";
+
                 eyeIcon.classList.add("open");
                 eyeIcon.classList.remove("closed");
+
                 eyeIcon.setAttribute("aria-label", "Show password");
                 eyeIcon.setAttribute("aria-pressed", "false");
+
             }
+
         });
+
+    }
+
+
+    // ==========================
+    // RANDOM QUOTE
+    // ==========================
+
+    loadRandomQuote();
+
+
+    async function loadRandomQuote() {
+
+        const quoteElement = document.getElementById("quote");
+        const authorElement = document.getElementById("author");
+
+
+        if (!quoteElement || !authorElement) {
+            return;
+        }
+
+
+        try {
+
+            const response = await fetch("/static/data/quotes.json");
+
+            if (!response.ok) {
+                throw new Error("Could not load quotes");
+            }
+
+
+            const quotes = await response.json();
+
+            // Pick one quote at random each time the page loads.
+            const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+
+
+            quoteElement.textContent = `"${randomQuote.quote}"`;
+            authorElement.textContent = `— ${randomQuote.author}`;
+
+
+        } catch (error) {
+
+            console.error("Quote loading error:", error);
+
+        }
+
+    }
+
+    // ==========================
+    // HOMEPAGE CAROUSEL
+    // ==========================
+
+    const carousel = document.querySelector(".carousel");
+
+    if (carousel) {
+
+        const slides = carousel.querySelectorAll(".slide");
+        const nextBtn = carousel.querySelector(".next");
+        const prevBtn = carousel.querySelector(".prev");
+        const dots = carousel.querySelectorAll(".dot");
+
+        let currentIndex = 0;
+
+
+        function updateCarousel() {
+
+            // Reset active state, then activate the current slide and matching dot.
+
+            slides.forEach(slide => {
+                slide.classList.remove("active");
+            });
+
+            dots.forEach(dot => {
+                dot.classList.remove("active");
+            });
+
+            slides[currentIndex].classList.add("active");
+
+            if (dots[currentIndex]) {
+                dots[currentIndex].classList.add("active");
+            }
+
+        }
+
+        if (slides.length > 0) {
+            updateCarousel();
+        }
+
+
+        if (nextBtn && prevBtn && slides.length > 0) {
+
+            nextBtn.addEventListener("click", () => {
+
+
+                currentIndex++;
+
+                // Wrap to the first slide after the last one.
+                if (currentIndex >= slides.length) {
+                    currentIndex = 0;
+                }
+
+                updateCarousel();
+
+            });
+
+
+            prevBtn.addEventListener("click", () => {
+
+                currentIndex--;
+
+                // Wrap to the last slide when moving backward from the first.
+                if (currentIndex < 0) {
+                    currentIndex = slides.length - 1;
+                }
+
+                updateCarousel();
+
+            });
+
+        }
+
+            dots.forEach((dot, index) => {
+
+                dot.addEventListener("click", () => {
+
+                    currentIndex = index;
+
+                    updateCarousel();
+
+                });
+            });
+
+            // AUTO-ROTATE CAROUSEL (every 3 seconds)
+
+            let timer = setInterval(() => {
+
+                currentIndex++;
+
+                if (currentIndex >= slides.length) {
+                    currentIndex = 0;
+                }
+
+                updateCarousel();
+
+            }, 3000);
+
+
+            // Pause auto-rotation when hovering over slides
+
+            const sliderContainer = carousel.querySelector(".slider-carousel");
+
+
+            sliderContainer.addEventListener("mouseenter", () => {
+
+                clearInterval(timer);
+
+            });
+
+
+            sliderContainer.addEventListener("mouseleave", () => {
+
+                timer = setInterval(() => {
+
+                    currentIndex++;
+
+                    if (currentIndex >= slides.length) {
+                        currentIndex = 0;
+                    }
+
+                    updateCarousel();
+
+                }, 3000);
+
+            });
+
     }
 
 
