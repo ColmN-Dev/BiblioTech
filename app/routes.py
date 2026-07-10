@@ -36,17 +36,17 @@ def search_results():
 @routes.route("/book/<book_id>")
 def book_detail(book_id):
     
-    book = get_book_details(book_id)
+    book = get_book_details(volume_id=book_id)
     
     if not book:
         return redirect(url_for("routes.index"))
     
-    # Remove HTML tags from book description
-    description = book.get("volumeInfo", {}).get("description")
+    # Safely extract and clean HTML tags from book description
+    volume_info = book.setdefault("volumeInfo", {})
+    description = volume_info.get("description")
 
     if description:
-        book["volumeInfo"]["description"] = re.sub(r"<.*?>", "", description)
-
+        volume_info["description"] = re.sub(r"<.*?>", "", description)
     
     return render_template("book_detail.html", book=book)
 
