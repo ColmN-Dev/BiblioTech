@@ -41,6 +41,62 @@
 
     }
 
+    // ==========================
+    // SEARCH INPUT CLEAR BUTTON
+    // ==========================
+
+    document.addEventListener("DOMContentLoaded", () => {
+
+    // Get the search input and clear button elements
+    const searchInput = document.getElementById("searchInput");
+    const clearBtn = document.getElementById("clearBtn");
+
+    if (searchInput && clearBtn) {
+
+        searchInput.addEventListener("input", () => {
+
+            // Show or hide the clear button based on the input value
+            if (searchInput.value.trim() !== "") {
+                clearBtn.classList.add("visible");
+            } else {
+                clearBtn.classList.remove("visible");
+            }
+
+        });
+
+    // Clear the search input when the clear button is clicked
+    clearBtn.addEventListener("click", () => {
+
+        searchInput.value = "";
+
+        clearBtn.classList.remove("visible");
+
+        searchInput.focus();
+
+    });
+
+    // Clear the search input when the Escape key is pressed
+    searchInput.addEventListener("keydown", (e) => {
+
+        if (e.key === "Escape") {
+
+            searchInput.value = "";
+
+            clearBtn.classList.remove("visible");
+
+        }
+
+    });
+
+    // Show the clear button if the input has a value on page load
+    if (searchInput.value.trim() !== "") {
+        clearBtn.classList.add("visible");
+    }
+
+    }
+
+    });
+
 
 
     // ==========================
@@ -73,7 +129,7 @@
     }
 
 
-    // Toggle theme
+    // Toggle theme 
     themeToggles.forEach(toggle => {
 
         toggle.addEventListener("click", () => {
@@ -105,6 +161,31 @@
         });
 
     });
+
+    // ==========================
+    // PASSWORD TYPE TOGGLE
+    // ==========================
+
+    const eyeIcon = document.getElementById("togglePassword");
+    const passwordInput = document.getElementById("password");
+
+    if (eyeIcon && passwordInput) {
+        eyeIcon.addEventListener("click", () => {
+            if (passwordInput.type === "password") {
+                passwordInput.type = "text";
+                eyeIcon.classList.add("closed");
+                eyeIcon.classList.remove("open");
+                eyeIcon.setAttribute("aria-label", "Hide password");
+                eyeIcon.setAttribute("aria-pressed", "true");
+            } else {
+                passwordInput.type = "password";
+                eyeIcon.classList.add("open");
+                eyeIcon.classList.remove("closed");
+                eyeIcon.setAttribute("aria-label", "Show password");
+                eyeIcon.setAttribute("aria-pressed", "false");
+            }
+        });
+    }
 
 
 })();
