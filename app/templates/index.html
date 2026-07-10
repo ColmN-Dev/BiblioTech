@@ -50,11 +50,78 @@
 
 
 <section class="featured-books">
+
     <h2>Featured Books</h2>
 
-    <div class="carousel">
-        <!-- Carousel slides -->
+    <div class="featured-content">
+
+        <div class="quote-container">
+
+            <blockquote id="quote" class="quote-text"></blockquote>
+
+            <p id="author" class="quote-author"></p>
+
+        </div>
+
+
+        <div class="carousel">
+
+            <div class="carousel-wrapper">
+
+                <div class="slider-carousel">
+
+                    {% for book in featured_books %}
+
+                    <div class="slide">
+
+                        <a href="{{ url_for('routes.book_detail', book_id=book.id) }}">
+
+                            {% if book.volumeInfo.imageLinks %}
+                                <img src="{{ book.volumeInfo.imageLinks.thumbnail }}" alt="{{ book.volumeInfo.title }}">
+                            {% else %}
+                                <img src="/static/images/no-cover.png" alt="No cover available">
+                            {% endif %}
+
+                        </a>
+
+                        <div class="slide-text">
+
+                            <h3>
+                                {{ book.volumeInfo.title }}
+                            </h3>
+
+                        </div>
+
+                    </div>
+
+                    {% endfor %}
+
+                </div>
+
+                <div class="carousel-nav">
+
+                    <button class="prev">&#10094;</button>
+
+                    <button class="next">&#10095;</button>
+
+                </div>
+
+            </div>
+
+            <div class="navigation-dots">
+
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+                <span class="dot"></span>
+
+            </div>
+
+        </div>
+
     </div>
+
 </section>
 
 
