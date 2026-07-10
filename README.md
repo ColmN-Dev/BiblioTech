@@ -15,9 +15,13 @@ The codebase currently includes:
 - Flask-Migrate configuration
 - Initial database schema and migrations
 - Google Books API integration
-- Centralised API request handling with timeout and retry support
+- Centralised API request handling with timeout, retry support, and fallback handling
 - Search functionality
 - Book detail pages
+- Dynamic homepage quote section
+- Google Books powered homepage carousel
+- Genre-based random book selection for homepage content
+- Carousel navigation controls, active indicators, and auto-rotation
 - Responsive frontend layouts
 - Styled authentication pages
 - Password visibility toggle
@@ -29,23 +33,49 @@ The database models have been designed and the initial migration has been succes
 
 ---
 
+---
+
+## Homepage Features
+
+The homepage currently includes dynamic content powered by external data sources.
+
+Features include:
+
+- Rotating quote section using local JSON data
+- Google Books API powered carousel
+- Random book selection based on popular genres
+- Previous and next navigation controls
+- Active slide indicators
+- Automatic carousel rotation with pause-on-hover behaviour
+- Missing cover image fallback handling
+
+---
+
 ## Project Structure
 
 ```text
 BiblioTech/
-  run.py
-  Procfile
-  requirements.txt
-  app/
-     __init__.py
-     config.py
-     models.py
-     routes.py
-     helpers.py
-     templates/
-     static/
-  data/
-  docs/
+│
+├── run.py
+├── Procfile
+├── requirements.txt
+│
+├── app/
+│   ├── __init__.py
+│   ├── config.py
+│   ├── models.py
+│   ├── routes.py
+│   ├── helpers.py
+│   │
+│   ├── templates/
+│   │
+│   └── static/
+│       ├── css/
+│       ├── js/
+│       └── data/
+│           └── quotes.json
+│
+└── docs/
 ```
 
 ---
