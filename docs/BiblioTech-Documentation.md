@@ -203,7 +203,6 @@ Stores user reviews:
 ## Planned Features
 
 - Search autocomplete
-- Homepage quote and carousel
 - Genre filtering
 - Authentication
 - Personal library system
@@ -230,6 +229,12 @@ Stores user reviews:
 - Password visibility toggle
 - Search input clear functionality
 - Improved navigation with back-to-home buttons
+- Dynamic quote fetch from a list of 50 quotes from `app/data/quotes.json` 
+- Dynamic homepage book carousel using Google Books API data
+- Genre-based random book selection for homepage content
+- Carousel navigation controls and slide indicators
+- Responsive carousel layout adjustments
+- Automatic carousel rotation with pause-on-hover behaviour
 
 ---
 
@@ -330,6 +335,10 @@ Improvements added:
 - Improved book detail layout for different screen sizes.
 - Added fallback handling for long API-generated text.
 - Added navigation buttons to improve movement between pages.
+- Added dynamic homepage carousel using Google Books API data.
+- Implemented responsive carousel behaviour across different screen sizes.
+- Added fallback handling for books without available cover images.
+- Added carousel navigation controls and slide indicators with active state styling to show the current slide.
 
 The frontend uses responsive CSS techniques to maintain usability across desktop, tablet, and mobile devices.
 
@@ -447,6 +456,53 @@ HTML markup returned inside book descriptions was cleaned before rendering by us
 
 ---
 
+---
+
+## Challenge 6: Building a Dynamic Homepage Carousel
+
+### Challenge
+
+Creating the homepage carousel introduced several frontend challenges when integrating live Google Books API data.
+
+The initial implementation used randomly generated search queries, which produced inconsistent results because the API could return unrelated books or unsuitable content.
+
+Additional issues were discovered during frontend testing:
+
+- Carousel images used low-resolution API thumbnails, which caused quality issues when displayed at larger sizes.
+- Responsive behaviour required adjustments across desktop, tablet, and mobile screen sizes.
+- Carousel sizing required balancing image quality, layout space, and usability.
+- Navigation controls and slide state management required JavaScript interaction to correctly switch between books.
+
+### Solution
+
+The random book generation system was improved by replacing random character searches with a predefined list of popular genres:
+
+- Fiction
+- Mystery
+- Thriller
+- Fantasy
+- Science Fiction
+- Biography
+- History
+- Science
+- Adventure
+- Romance
+- Technology
+
+The helper function was updated to randomly select genres and retrieve relevant books using Google Books API subject searches.
+
+The carousel frontend was refined by:
+
+- Adding responsive sizing adjustments using CSS media queries.
+- Improving image display behaviour using object-fit styling.
+- Adding fallback handling for missing book covers.
+- Implementing JavaScript controls for previous and next navigation.
+- Adding navigation indicators to show the active slide.
+
+Testing across different screen sizes highlighted the importance of designing components around real API data rather than placeholder content.
+
+---
+
 # What Was Learned So Far
 
 - Large refactors in Git can represent organised restructuring rather than major logic changes.
@@ -465,6 +521,10 @@ HTML markup returned inside book descriptions was cleaned before rendering by us
 - Responsive layouts need testing across multiple screen sizes, not only desktop.
 - Reusable helper functions reduce duplicated API handling logic.
 - Small UI features such as search clearing and password visibility improve usability.
+- External API data often requires filtering and selection logic to create meaningful user experiences.
+- Responsive components require testing with real content because API data can expose layout issues not visible with placeholders.
+- Image quality and source resolution should be considered when designing media-heavy interfaces.
+- Interactive components often require coordination between HTML, CSS, JavaScript, and backend data.
 
 ---
 
