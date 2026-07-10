@@ -8,7 +8,10 @@ routes = Blueprint("routes", __name__)
 # INDEX
 @routes.route("/")
 def index():
-    return render_template("index.html")
+    
+    featured_books = get_random_books(5)  
+    
+    return render_template("index.html", featured_books=featured_books)
 
 
 # SEARCH
