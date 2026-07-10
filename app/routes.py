@@ -43,6 +43,7 @@ def book_detail(book_id):
     
     # Safely extract and clean HTML tags from book description
     volume_info = book.setdefault("volumeInfo", {})
+    volume_info.setdefault("customLinks", {})
     description = volume_info.get("description")
 
     if description:
