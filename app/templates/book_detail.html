@@ -4,7 +4,6 @@
 
 {% block content %}
 
-
     <div class="back-btn-container">
     <a href="{{ url_for('routes.index') }}" class="btn">
         &larr; Back to Home
@@ -31,7 +30,6 @@
             else "Unknown Author" }}
         </p>
 
-
         <div class="book-metadata">
 
             {% if book.volumeInfo.publisher %}
@@ -41,21 +39,16 @@
             </p>
             {% endif %}
 
-
-
             {% if book.volumeInfo.industryIdentifiers %}
                 <p>
                     <strong>ISBN:</strong>
-
                     {% for isbn in book.volumeInfo.industryIdentifiers %}
                         {% if isbn.type == "ISBN_13" %}
                             {{ isbn.identifier }}
                         {% endif %}
                     {% endfor %}
-
                 </p>
             {% endif %}
-
 
             {% if book.volumeInfo.publishedDate %}
             <p>
@@ -64,14 +57,12 @@
             </p>
             {% endif %}
 
-
             {% if book.volumeInfo.categories %}
             <p>
                 <strong>Genre:</strong>
                 {{ book.volumeInfo.categories | join(", ") }}
             </p>
             {% endif %}
-
 
             {% if book.volumeInfo.pageCount %}
             <p>
@@ -80,14 +71,12 @@
             </p>
             {% endif %}
 
-
             {% if book.volumeInfo.language %}
             <p>
                 <strong>Language:</strong>
                 {{ book.volumeInfo.language.upper() }}
             </p>
             {% endif %}
-
 
             {% if book.volumeInfo.averageRating %}
             <p>
@@ -97,42 +86,54 @@
             </p>
             {% endif %}
 
-
         </div>
         </div>
 
         <div class="book-data-bg">
-
         <h2>Description</h2>
-
         <p>
             {{ book.volumeInfo.description
             if book.volumeInfo.description
             else "No description available." }}
         </p>
-
         </div>
 
         <div class="book-links">
-
             {% if book.volumeInfo.previewLink %}
             <a href="{{ book.volumeInfo.previewLink }}" target="_blank" class="btn">
                 Preview Book
             </a>
             {% endif %}
 
-
             {% if book.saleInfo.buyLink %}
-            <a href="{{ book.saleInfo.buyLink }}" target="_blank" class="btn">
-                Buy Book
+            <a href="{{ book.saleInfo.buyLink }}" target="_blank" class="btn google-play-btn">
+                Google Play Store
             </a>
             {% endif %}
 
+            {# Injected External Platform Marketplace Links #}
+            {% if book.volumeInfo.customLinks %}
+                {% if book.volumeInfo.customLinks.amazon %}
+                <a href="{{ book.volumeInfo.customLinks.amazon }}" target="_blank" class="btn amazon-btn">
+                    View on Amazon
+                </a>
+                {% endif %}
+
+                {% if book.volumeInfo.customLinks.goodreads %}
+                <a href="{{ book.volumeInfo.customLinks.goodreads }}" target="_blank" class="btn goodreads-btn">
+                    View on Goodreads
+                </a>
+                {% endif %}
+
+                {% if book.volumeInfo.customLinks.worldcat %}
+                <a href="{{ book.volumeInfo.customLinks.worldcat }}" target="_blank" class="btn worldcat-btn">
+                    Find in Libraries (WorldCat)
+                </a>
+                {% endif %}
+            {% endif %}
         </div>
 
-
     </div>
-
 </div>
 
 {% endblock %}
