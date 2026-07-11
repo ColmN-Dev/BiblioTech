@@ -14,63 +14,7 @@ if not API_KEY:
     raise RuntimeError("Google Books API key is missing")
 
 
-# Full API search pool
-BOOK_GENRES = [
-    "Fiction",
-    "Fantasy",
-    "Science Fiction",
-    "Mystery",
-    "Thriller",
-    "Romance",
-    "Horror",
-    "Adventure",
-    "Crime",
-    "Biography",
-    "Autobiography",
-    "History",
-    "Science",
-    "Technology",
-    "Computer Science",
-    "Programming",
-    "Business",
-    "Economics",
-    "Finance",
-    "Self Help",
-    "Psychology",
-    "Philosophy",
-    "Religion",
-    "Spirituality",
-    "Health",
-    "Fitness",
-    "Travel",
-    "Cooking",
-    "Food",
-    "Art",
-    "Photography",
-    "Music",
-    "Poetry",
-    "Drama",
-    "Classics",
-    "Literature",
-    "Politics",
-    "Law",
-    "Education",
-    "Mathematics",
-    "Physics",
-    "Chemistry",
-    "Biology",
-    "Medicine",
-    "Engineering",
-    "Environment",
-    "Nature",
-    "Sports",
-    "Children",
-    "Young Adult",
-    "Comics",
-    "Graphic Novels"
-]
-
-# Curated subset of BOOK_GENRES for the homepage genre grid
+# Curated list of Book Genres for the homepage genre grid
 FEATURED_GENRES = [
     "Fiction",
     "Fantasy",
@@ -224,7 +168,7 @@ def get_random_books(count=5):
     
     while attempts < 3:
 
-        genre = random.choice(BOOK_GENRES)
+        genre = random.choice(FEATURED_GENRES)
 
         data = fetch_json({
             "q": f"subject:{genre}",
