@@ -72,17 +72,26 @@
 
                     {% for book in featured_books %}
 
-                    <div class="slide">
+                        <div class="slide {% if loop.first %}active{% endif %}">
 
-                        <a href="{{ url_for('routes.book_detail', book_id=book.id) }}">
+                            <a href="{{ url_for('routes.book_detail', book_id=book.id) }}">
 
-                            {% if book.volumeInfo.imageLinks %}
-                                <img src="{{ book.volumeInfo.imageLinks.thumbnail }}" alt="{{ book.volumeInfo.title }}">
-                            {% else %}
-                                <img src="/static/images/no-cover.png" alt="No cover available">
-                            {% endif %}
+                                {% set image_links = book.volumeInfo.get("imageLinks", {}) %}
 
-                        </a>
+                                {% if image_links.get("thumbnail") %}
+                                    <img 
+                                        src="{{ image_links.get('thumbnail') }}"
+                                        alt="{{ book.volumeInfo.get('title', 'Unknown title') }}"
+                                        onerror="this.src='/static/images/no-cover.png'"
+                                    >
+                                {% else %}
+                                    <img 
+                                        src="/static/images/no-cover.png"
+                                        alt="No cover available"
+                                    >
+                                {% endif %}
+
+                            </a>
 
                         <div class="slide-text">
 
@@ -110,11 +119,9 @@
 
             <div class="navigation-dots">
 
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
-                <span class="dot"></span>
+                {% for book in featured_books %}
+                    <span class="dot"></span>
+                {% endfor %}
 
             </div>
 
@@ -129,10 +136,12 @@
     <h2>Browse by Genre</h2>
 
     <div class="genre-grid">
-        <div class="genre-card">
-            <!-- Genre card -->
-        </div>
-    </div>
+    {% for genre in genres %}
+    <a href="{{ url_for('routes.search_results', query='subject:' + genre) }}" class="genre-card">
+        <span>{{ genre }}</span>
+    </a>
+    {% endfor %}
+</div>
 </section>
 
 {% endblock %}
