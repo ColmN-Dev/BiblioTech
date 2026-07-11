@@ -512,6 +512,8 @@ The carousel frontend was refined by:
 
 Testing across different screen sizes highlighted the importance of designing components around real API data rather than placeholder content.
 
+Also fixed a related inconsistency where `get_random_books()` was selecting from the full 50-genre list while the homepage genre grid used a curated 24-genre list. Aligned both to use the same curated list so the carousel only pulls from genres users can also browse directly.
+
 ---
 
 ## Challenge 7: Book Detail Marketplace Links Not Resolving
