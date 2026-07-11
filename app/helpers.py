@@ -71,7 +71,7 @@ BOOK_GENRES = [
 ]
 
 
-def _add_custom_links(book):
+def add_custom_links(book):
     """
     Adds Amazon, Goodreads and WorldCat search links
     using the book's ISBN.
