@@ -245,130 +245,185 @@
     // HOMEPAGE CAROUSEL
     // ==========================
 
-    const carousel = document.querySelector(".carousel");
+const carousel = document.querySelector(".carousel");
 
-    if (carousel) {
+if (carousel) {
 
-        const slides = carousel.querySelectorAll(".slide");
-        const nextBtn = carousel.querySelector(".next");
-        const prevBtn = carousel.querySelector(".prev");
-        const dots = carousel.querySelectorAll(".dot");
+    const slides = carousel.querySelectorAll(".slide");
+    const nextBtn = carousel.querySelector(".next");
+    const prevBtn = carousel.querySelector(".prev");
+    const dots = carousel.querySelectorAll(".dot");
 
-        let currentIndex = 0;
+    // Initialize the current slide index and timer variable.
+    let currentIndex = 0;
+    let timer = null;
 
 
-        function updateCarousel() {
+    // Updates the visible slide and active navigation dot.
+    function updateCarousel() {
 
-            // Reset active state, then activate the current slide and matching dot.
-
-            slides.forEach(slide => {
-                slide.classList.remove("active");
-            });
-
-            dots.forEach(dot => {
-                dot.classList.remove("active");
-            });
-
-            slides[currentIndex].classList.add("active");
-
-            if (dots[currentIndex]) {
-                dots[currentIndex].classList.add("active");
-            }
-
-        }
-
-        if (slides.length > 0) {
-            updateCarousel();
+        // Prevent errors if no slides were returned from the API.
+        if (slides.length === 0) {
+            return;
         }
 
 
-        if (nextBtn && prevBtn && slides.length > 0) {
-
-            nextBtn.addEventListener("click", () => {
-
-
-                currentIndex++;
-
-                // Wrap to the first slide after the last one.
-                if (currentIndex >= slides.length) {
-                    currentIndex = 0;
-                }
-
-                updateCarousel();
-
-            });
-
-
-            prevBtn.addEventListener("click", () => {
-
-                currentIndex--;
-
-                // Wrap to the last slide when moving backward from the first.
-                if (currentIndex < 0) {
-                    currentIndex = slides.length - 1;
-                }
-
-                updateCarousel();
-
-            });
-
+        // Safety checks to keep index within valid range.
+        if (currentIndex >= slides.length) {
+            currentIndex = 0;
         }
 
-            dots.forEach((dot, index) => {
-
-                dot.addEventListener("click", () => {
-
-                    currentIndex = index;
-
-                    updateCarousel();
-
-                });
-            });
-
-            // AUTO-ROTATE CAROUSEL (every 3 seconds)
-
-            let timer = setInterval(() => {
-
-                currentIndex++;
-
-                if (currentIndex >= slides.length) {
-                    currentIndex = 0;
-                }
-
-                updateCarousel();
-
-            }, 3000);
+        if (currentIndex < 0) {
+            currentIndex = slides.length - 1;
+        }
 
 
-            // Pause auto-rotation when hovering over slides
-
-            const sliderContainer = carousel.querySelector(".slider-carousel");
-
-
-            sliderContainer.addEventListener("mouseenter", () => {
-
-                clearInterval(timer);
-
-            });
+        // Remove active state from all slides.
+        slides.forEach(slide => {
+            slide.classList.remove("active");
+        });
 
 
-            sliderContainer.addEventListener("mouseleave", () => {
+        // Remove active state from all dots.
+        dots.forEach(dot => {
+            dot.classList.remove("active");
+        });
 
-                timer = setInterval(() => {
 
-                    currentIndex++;
+        // Activate current slide.
+        slides[currentIndex].classList.add("active");
 
-                    if (currentIndex >= slides.length) {
-                        currentIndex = 0;
-                    }
 
-                    updateCarousel();
-
-                }, 3000);
-
-            });
+        // Activate matching navigation dot.
+        if (dots[currentIndex]) {
+            dots[currentIndex].classList.add("active");
+        }
 
     }
+
+    // Start carousel timer.
+    function startAutoRotate() {
+
+        // Do not start timer if there is only one or no slides.
+        if (slides.length <= 1) {
+            return;
+        }
+
+
+        // Prevent multiple timers running at once.
+        clearInterval(timer);
+
+
+        timer = setInterval(() => {
+
+            currentIndex++;
+
+
+            // Return to first slide after reaching the end.
+            if (currentIndex >= slides.length) {
+                currentIndex = 0;
+            }
+
+
+            updateCarousel();
+
+
+        }, 3000);
+
+    }
+
+    // Stop carousel timer.
+    function stopAutoRotate() {
+
+        clearInterval(timer);
+
+    }
+
+    // Initialise carousel on page load.
+    updateCarousel();
+
+    startAutoRotate();
+
+    // Next button functionality.
+    if (nextBtn) {
+
+        nextBtn.addEventListener("click", () => {
+
+            currentIndex++;
+
+
+            if (currentIndex >= slides.length) {
+                currentIndex = 0;
+            }
+
+
+            updateCarousel();
+
+        });
+
+    }
+
+    // Previous button functionality.
+    if (prevBtn) {
+
+        prevBtn.addEventListener("click", () => {
+
+            currentIndex--;
+
+
+            if (currentIndex < 0) {
+                currentIndex = slides.length - 1;
+            }
+
+
+            updateCarousel();
+
+        });
+
+    }
+
+    // Navigation dot functionality.
+    dots.forEach((dot, index) => {
+
+        dot.addEventListener("click", () => {
+
+
+            // Only allow indexes that actually have slides.
+            if (slides[index]) {
+
+                currentIndex = index;
+
+                updateCarousel();
+
+            }
+
+        });
+
+    });
+
+    // Pause carousel while hovering over the slider.
+    const sliderContainer = carousel.querySelector(".slider-carousel");
+
+
+    if (sliderContainer) {
+
+        sliderContainer.addEventListener("mouseenter", () => {
+
+            stopAutoRotate();
+
+        });
+
+
+
+        sliderContainer.addEventListener("mouseleave", () => {
+
+            startAutoRotate();
+
+        });
+
+    }
+
+}
 
 
 })();
