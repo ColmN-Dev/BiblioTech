@@ -1,3 +1,4 @@
+import re
 import requests
 import random
 import os
@@ -13,8 +14,7 @@ if not API_KEY:
     raise RuntimeError("Google Books API key is missing")
 
 
-# Popular book genres used to fetch random books for the homepage.
-# This list can also be reused anywhere else genres are needed.
+# Full API search pool
 BOOK_GENRES = [
     "Fiction",
     "Fantasy",
@@ -70,6 +70,33 @@ BOOK_GENRES = [
     "Graphic Novels"
 ]
 
+# Curated subset of BOOK_GENRES for the homepage genre grid
+FEATURED_GENRES = [
+    "Fiction",
+    "Fantasy",
+    "Science Fiction",
+    "Mystery",
+    "Thriller",
+    "Romance",
+    "Horror",
+    "Crime",
+    "Adventure",
+    "Biography",
+    "History",
+    "Science",
+    "Technology",
+    "Business",
+    "Self Help",
+    "Psychology",
+    "Philosophy",
+    "Poetry",
+    "Classics",
+    "Drama",
+    "Travel",
+    "Cooking",
+    "Young Adult",
+    "Comics"
+]
 
 def add_custom_links(book):
     """
@@ -96,6 +123,15 @@ def add_custom_links(book):
             isbn = item["identifier"]
 
     volume_info["customLinks"] = {}
+    
+    # Ensure all image links use HTTPS 
+    if "imageLinks" in volume_info:
+        for key, url in volume_info["imageLinks"].items():
+            url = url.replace("http://", "https://")
+            
+            # Request a higher resolution image
+            url = re.sub(r"&zoom=\d", "&zoom=3", url)
+            volume_info["imageLinks"][key] = url
 
     if isbn:
 
@@ -183,19 +219,26 @@ def get_random_books(count=5):
     books for the homepage carousel.
     """
 
-    genre = random.choice(BOOK_GENRES)
+    # Attempt to fetch books from a random genre up to 3 times
+    attempts = 0
+    
+    while attempts < 3:
 
-    data = fetch_json({
-        "q": f"subject:{genre}",
-        "maxResults": count
-    })
+        genre = random.choice(BOOK_GENRES)
 
-    if not data:
-        return []
+        data = fetch_json({
+            "q": f"subject:{genre}",
+            "maxResults": count
+        })
 
-    books = data.get("items", [])
+        if data and "items" in data:
+            books = data.get("items", [])
 
-    return [
-        add_custom_links(book)
-        for book in books[:count]
-    ]
+            return [
+                add_custom_links(book)
+                for book in books[:count]
+            ]
+
+    attempts += 1
+
+    return []

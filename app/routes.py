@@ -1,5 +1,5 @@
 from flask import Blueprint, render_template, redirect, request, url_for, session
-from app.helpers import search_books, get_book_details, get_random_books
+from app.helpers import search_books, get_book_details, get_random_books, FEATURED_GENRES
 import re 
 
 routes = Blueprint("routes", __name__)
@@ -9,9 +9,9 @@ routes = Blueprint("routes", __name__)
 @routes.route("/")
 def index():
     
-    featured_books = get_random_books(5)  
+    featured_books = get_random_books(5) or []
     
-    return render_template("index.html", featured_books=featured_books)
+    return render_template("index.html", featured_books=featured_books, genres=FEATURED_GENRES)
 
 
 # SEARCH
