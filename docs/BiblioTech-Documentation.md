@@ -1,6 +1,6 @@
 # BiblioTech Documentation
 
-**Last updated:** July 10, 2026
+**Last updated:** July 11, 2026
 
 ---
 
@@ -229,12 +229,14 @@ Stores user reviews:
 - Password visibility toggle
 - Search input clear functionality
 - Improved navigation with back-to-home buttons
-- Dynamic quote fetch from a list of 50 quotes from `app/data/quotes.json` 
+- Dynamic quote fetch from a list of 50 quotes stored in `app/static/data/quotes.json`
 - Dynamic homepage book carousel using Google Books API data
 - Genre-based random book selection for homepage content
 - Carousel navigation controls and slide indicators
 - Responsive carousel layout adjustments
 - Automatic carousel rotation with pause-on-hover behaviour
+- Homepage genre grid with 24 curated genres linking to search results
+- Corrected marketplace buy links on the book detail page
 
 ---
 
@@ -301,7 +303,7 @@ Used by the book detail page.
 
 ### `get_random_books(count)`
 
-Retrieves random books for homepage content.
+Retrieves random books for homepage content, using genre-based subject searches.
 
 ---
 
@@ -339,6 +341,8 @@ Improvements added:
 - Implemented responsive carousel behaviour across different screen sizes.
 - Added fallback handling for books without available cover images.
 - Added carousel navigation controls and slide indicators with active state styling to show the current slide.
+- Added a curated 24-genre grid to the homepage, linking each genre to search results.
+- Corrected marketplace buy link URLs on the book detail page.
 
 The frontend uses responsive CSS techniques to maintain usability across desktop, tablet, and mobile devices.
 
@@ -456,8 +460,6 @@ HTML markup returned inside book descriptions was cleaned before rendering by us
 
 ---
 
----
-
 ## Challenge 6: Building a Dynamic Homepage Carousel
 
 ### Challenge
@@ -465,6 +467,10 @@ HTML markup returned inside book descriptions was cleaned before rendering by us
 Creating the homepage carousel introduced several frontend challenges when integrating live Google Books API data.
 
 The initial implementation used randomly generated search queries, which produced inconsistent results because the API could return unrelated books or unsuitable content.
+
+The carousel also introduced reliability issues when retrieving random homepage books. Since the carousel depends on live Google Books API data, temporary API failures could result in no books being returned, causing the carousel content to appear empty.
+
+Testing revealed that some requests returned *HTTP 503 Service Unavailable* responses from the Google Books API. When this occurred, the homepage received an empty book list instead of the expected featured books.
 
 Additional issues were discovered during frontend testing:
 
@@ -491,6 +497,10 @@ The random book generation system was improved by replacing random character sea
 
 The helper function was updated to randomly select genres and retrieve relevant books using Google Books API subject searches.
 
+Added fallback handling inside `get_random_books()` by retrying the request with a different randomly selected genre when the first API request fails or returns no usable results.
+
+This allows the homepage carousel to recover from temporary API failures while still safely returning an empty result if multiple attempts fail.
+
 The carousel frontend was refined by:
 
 - Adding responsive sizing adjustments using CSS media queries.
@@ -498,8 +508,70 @@ The carousel frontend was refined by:
 - Adding fallback handling for missing book covers.
 - Implementing JavaScript controls for previous and next navigation.
 - Adding navigation indicators to show the active slide.
+- Adding automatic slide rotation using `setInterval()`, resetting to the first slide at the end, with `mouseenter`/`mouseleave` pausing and resuming the timer.
 
 Testing across different screen sizes highlighted the importance of designing components around real API data rather than placeholder content.
+
+---
+
+## Challenge 7: Book Detail Marketplace Links Not Resolving
+
+### Challenge
+
+Marketplace buy links (Amazon, Goodreads, WorldCat) on the book detail page did not resolve to valid search results.
+
+### Solution
+
+The URLs were being built by concatenating the domain directly with the ISBN (e.g. `https://amazon.com{isbn}`), with no search path or query parameter included. Corrected each link to use the proper search endpoint and query string for its platform (e.g. Amazon's `/s?k=`, Goodreads' and WorldCat's `/search?q=`), so the ISBN is passed as an actual search query rather than appended to the bare domain.
+
+---
+
+## Challenge 8: Carousel Navigation Dots Not Syncing with Active Slide
+
+### Challenge
+
+The carousel could move between slides correctly, but the navigation dots were only styled for hover — there was no logic tracking which dot corresponded to the currently visible slide.
+
+### Solution
+
+Updated the carousel JavaScript so that on every slide change it removes the `active` class from all dots, checks the current slide index, and re-applies `active` to the matching dot:
+
+```javascript
+dots.forEach(dot => dot.classList.remove("active"));
+dots[currentIndex].classList.add("active");
+```
+
+This keeps the dot indicator in sync with the visible slide (Slide 1 → Dot 1, Slide 2 → Dot 2, etc.).
+
+---
+
+## Challenge 9: Carousel Images Not Displaying for Some Books
+
+### Challenge
+
+The carousel occasionally failed to display a cover image. Some books returned by the Google Books API did not include available cover image data. This caused carousel slides to render without an image when no thumbnail was provided.
+
+### Solution
+
+Added fallback handling to use no-cover.png whenever a book did not contain a valid cover image.
+
+```python
+cover = book_info.get("imageLinks", {}).get("thumbnail", "/static/images/no-cover.png")
+```
+
+This complements the genre-based query change from Challenge 6, since genre searches tend to return more relevant, better-catalogued books that are more likely to have a cover image in the first place.
+
+---
+
+## Challenge 10: Blurry Carousel and Book Cover Thumbnails
+
+### Challenge
+
+Once images displayed correctly, thumbnails appeared visibly blurry when scaled up, particularly in the carousel.
+
+### Solution
+
+Google Books API image URLs often return lower-resolution thumbnails by default. Resolved by using a regular expression to rewrite the `zoom` parameter to a higher value (`zoom=3`) for a sharper source image, combined with CSS (`object-fit` and fixed carousel dimensions) to keep images from stretching awkwardly inside their containers.
 
 ---
 
@@ -525,6 +597,9 @@ Testing across different screen sizes highlighted the importance of designing co
 - Responsive components require testing with real content because API data can expose layout issues not visible with placeholders.
 - Image quality and source resolution should be considered when designing media-heavy interfaces.
 - Interactive components often require coordination between HTML, CSS, JavaScript, and backend data.
+- Constructing third-party URLs requires the correct search path and query parameters, not just the domain and an identifier.
+- UI state (such as active navigation indicators) needs to be explicitly synced with application state; it does not update automatically just because the underlying data changes.
+- Not all API results include every expected field, so defensive access patterns (e.g. `.get()` with defaults) are necessary when consuming third-party data.
 
 ---
 
