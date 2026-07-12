@@ -16,22 +16,24 @@ The codebase currently includes:
 - Initial database schema and migrations
 - Google Books API integration
 - Centralised API request handling with timeout, retry support, and fallback handling
-- Search functionality
+- Retry logic for temporary Google Books API failures across search and carousel requests
+- Search functionality with pagination
 - Book detail pages
 - Dynamic homepage quote section
 - Google Books powered homepage carousel
 - Genre-based random book selection for homepage content
+- Homepage genre grid with 24 curated genres linking to search results
 - Carousel navigation controls, active indicators, and auto-rotation
+- Corrected marketplace buy links on the book detail page
 - Responsive frontend layouts
 - Styled authentication pages
 - Password visibility toggle
 - Search input clearing functionality
+- Mobile navigation menu with overlay and background scroll lock
 
 Additional features, including authentication logic, personal library functionality, and reviews, are still being implemented.
 
 The database models have been designed and the initial migration has been successfully applied using Flask-Migrate.
-
----
 
 ---
 
@@ -48,6 +50,7 @@ Features include:
 - Active slide indicators
 - Automatic carousel rotation with pause-on-hover behaviour
 - Missing cover image fallback handling
+- Genre grid with 24 curated genres linking directly to search results
 
 ---
 
@@ -129,7 +132,7 @@ python -m flask db <command>
 ## Implemented Routes
 
 - `/` → Home (`index.html`)
-- `/search` → Query-driven book search using Google Books API (`search_results.html`)
+- `/search-results` → Query-driven book search using Google Books API, with pagination (`search_results.html`)
 - `/book/<book_id>` → Book detail view using API book information (`book_detail.html`)
 - `/library` → Your library (`your_library.html`)
 - `/about` → About (`about.html`)
@@ -141,4 +144,3 @@ python -m flask db <command>
 
 - Planning: [docs/Planning.md](docs/Planning.md)
 - Documentation: [docs/BiblioTech-Documentation.md](docs/BiblioTech-Documentation.md)
-

@@ -1,6 +1,6 @@
 # BiblioTech Documentation
 
-**Last updated:** July 11, 2026
+**Last updated:** July 12, 2026
 
 ---
 
@@ -229,7 +229,7 @@ Stores user reviews:
 - Password visibility toggle
 - Search input clear functionality
 - Improved navigation with back-to-home buttons
-- Dynamic quote fetch from a list of 50 quotes stored in `app/static/data/quotes.json`
+- Dynamic quote fetch from a list of 50 quotes from `app/data/quotes.json`
 - Dynamic homepage book carousel using Google Books API data
 - Genre-based random book selection for homepage content
 - Carousel navigation controls and slide indicators
@@ -237,6 +237,11 @@ Stores user reviews:
 - Automatic carousel rotation with pause-on-hover behaviour
 - Homepage genre grid with 24 curated genres linking to search results
 - Corrected marketplace buy links on the book detail page
+- Retry logic added to both `search_books()` and `get_random_books()` for consistent handling of temporary API failures
+- Randomised result offset for the homepage carousel so genres return varied books on each load
+- Search results pagination with sliding page-number window
+- Mobile menu overlay with click-away-to-close behaviour
+- Reliable background scroll lock while the mobile menu is open
 
 ---
 
@@ -245,6 +250,7 @@ Stores user reviews:
 1. Authentication pages have been created, but registration and login logic are not yet connected.
 2. Library and review functionality are not yet connected to the database.
 3. Search autocomplete and filtering features are still planned.
+4. Google Books API thumbnails vary in aspect ratio and quality between books, which can produce inconsistent layout results (e.g. whitespace or cropping) despite CSS handling.
 
 ---
 
@@ -343,6 +349,9 @@ Improvements added:
 - Added carousel navigation controls and slide indicators with active state styling to show the current slide.
 - Added a curated 24-genre grid to the homepage, linking each genre to search results.
 - Corrected marketplace buy link URLs on the book detail page.
+- Added pagination controls to search results, including a sliding page-number window and a "Next" link gated on a full page of results.
+- Added a full-screen overlay behind the mobile menu, allowing users to close it by clicking outside.
+- Replaced the unreliable `overflow: hidden` scroll lock with a `position: fixed` approach that reliably prevents background scrolling on touch devices, restoring the user's scroll position on close.
 
 The frontend uses responsive CSS techniques to maintain usability across desktop, tablet, and mobile devices.
 
@@ -468,10 +477,6 @@ Creating the homepage carousel introduced several frontend challenges when integ
 
 The initial implementation used randomly generated search queries, which produced inconsistent results because the API could return unrelated books or unsuitable content.
 
-The carousel also introduced reliability issues when retrieving random homepage books. Since the carousel depends on live Google Books API data, temporary API failures could result in no books being returned, causing the carousel content to appear empty.
-
-Testing revealed that some requests returned *HTTP 503 Service Unavailable* responses from the Google Books API. When this occurred, the homepage received an empty book list instead of the expected featured books.
-
 Additional issues were discovered during frontend testing:
 
 - Carousel images used low-resolution API thumbnails, which caused quality issues when displayed at larger sizes.
@@ -497,10 +502,6 @@ The random book generation system was improved by replacing random character sea
 
 The helper function was updated to randomly select genres and retrieve relevant books using Google Books API subject searches.
 
-Added fallback handling inside `get_random_books()` by retrying the request with a different randomly selected genre when the first API request fails or returns no usable results.
-
-This allows the homepage carousel to recover from temporary API failures while still safely returning an empty result if multiple attempts fail.
-
 The carousel frontend was refined by:
 
 - Adding responsive sizing adjustments using CSS media queries.
@@ -511,8 +512,6 @@ The carousel frontend was refined by:
 - Adding automatic slide rotation using `setInterval()`, resetting to the first slide at the end, with `mouseenter`/`mouseleave` pausing and resuming the timer.
 
 Testing across different screen sizes highlighted the importance of designing components around real API data rather than placeholder content.
-
-Also fixed a related inconsistency where `get_random_books()` was selecting from the full 50-genre list while the homepage genre grid used a curated 24-genre list. Aligned both to use the same curated list so the carousel only pulls from genres users can also browse directly.
 
 ---
 
@@ -551,11 +550,11 @@ This keeps the dot indicator in sync with the visible slide (Slide 1 → Dot 1, 
 
 ### Challenge
 
-The carousel occasionally failed to display a cover image. Some books returned by the Google Books API did not include available cover image data. This caused carousel slides to render without an image when no thumbnail was provided.
+The carousel occasionally failed to display a cover image. Some books returned by the Google Books API did not include an `imageLinks` object or a `thumbnail` field, so JavaScript accessing `book.volumeInfo.imageLinks.thumbnail` directly would fail for those entries.
 
 ### Solution
 
-Added fallback handling to use no-cover.png whenever a book did not contain a valid cover image.
+Added fallback handling so the carousel checks whether a cover image actually exists before using it, defaulting to `no-cover.png` when it doesn't:
 
 ```python
 cover = book_info.get("imageLinks", {}).get("thumbnail", "/static/images/no-cover.png")
@@ -573,35 +572,101 @@ Once images displayed correctly, thumbnails appeared visibly blurry when scaled 
 
 ### Solution
 
-Google Books API image URLs often return lower-resolution thumbnails by default. Resolved by using a regular expression to rewrite the `zoom` parameter to a higher value (`zoom=3`) for a sharper source image, combined with CSS (`object-fit` and fixed carousel dimensions) to keep images from stretching awkwardly inside their containers.
+Google Books' default thumbnail URLs return a low-resolution image (`zoom=1`). Resolved by using a regular expression to rewrite the `zoom` parameter to a higher value (`zoom=3`) for a sharper source image, combined with CSS (`object-fit: cover`) to keep images filling their containers cleanly. `object-fit: contain` was trialled for the carousel specifically to avoid cropping cover art, but reverted after testing showed the resulting whitespace looked worse across most books than the occasional bad crop under `cover`.
+
+---
+
+## Challenge 11: Intermittent "No Results" on Search and Carousel
+
+### Challenge
+
+Search results and the homepage carousel occasionally returned empty results on the first page load, with a subsequent reload succeeding for the exact same query. Testing showed this was linked to temporary Google Books API failures (e.g. HTTP 503 responses) that were not being retried.
+
+An existing retry loop inside `get_random_books()` also contained a logic bug: the `attempts += 1` counter was indented outside the `while` loop rather than inside it, meaning the loop had no way to reliably terminate its own attempt count on repeated failure.
+
+### Solution
+
+Added matching retry logic to `search_books()`, using the same `attempts`-based `while` loop pattern already used in `get_random_books()`, so both functions retry up to three times before giving up and returning an empty list. Corrected the indentation bug so the attempt counter increments inside the loop as intended.
+
+Standardising both functions on the same retry pattern keeps the API-handling logic consistent and easier to maintain going forward.
+
+---
+
+## Challenge 12: Homepage Carousel Always Showing the Same Books per Genre
+
+### Challenge
+
+The homepage carousel selected a random genre on each page load, but the same five books were returned every time for that genre, since Google Books always returns its most relevant results first for a given query with no offset applied.
+
+### Solution
+
+Added a randomised `startIndex` parameter to the request inside `get_random_books()`, so each request pulls from a random slice of the genre's results rather than always the top five:
+
+```python
+start_index = random.randint(0, 40)
+```
+
+The range was kept relatively low to avoid landing in thinly populated result ranges for less common genres, which had previously contributed to inconsistent or empty results.
+
+A later restyling pass (switching carousel images to `object-fit: contain` and repositioning the navigation arrows beside the dots) briefly broke due to mismatched closing `</div>` tags placing `.carousel-nav` outside the `.carousel` container — corrected by fixing the nesting.
+
+---
+
+## Challenge 13: Search Results Pagination
+
+### Challenge
+
+Search results only ever displayed a single page of results (fixed at `maxResults`), with no way for users to browse further into a larger result set.
+
+### Solution
+
+Added a `start_index` parameter to `search_books()`, calculated in the route from a `page` query parameter:
+
+```python
+per_page = 20
+start_index = (page - 1) * per_page
+```
+
+The template renders a sliding window of page-number links centred on the current page, rather than a fixed range, so the pagination bar stays consistent in width as the user moves through results:
+
+```jinja
+{% set window = 2 %}
+{% set start_page = [1, page - window]|max %}
+{% set end_page = start_page + 4 %}
+```
+
+Since Google Books' `totalItems` figure is an estimate and unreliable for exact page-count calculations, the "Next" link is only shown when the current page returned a full set of results (`results|length == per_page`), which is a more reliable signal that further pages likely exist.
+
+---
+
+## Challenge 14: Mobile Menu Not Closing on Outside Click and Background Still Scrollable
+
+### Challenge
+
+The mobile navigation menu could only be closed by clicking a link inside it; clicking anywhere else on the page did nothing. Additionally, `overflow: hidden` on the `body` element was not reliably preventing the background page from scrolling while the menu was open on touch devices.
+
+### Solution
+
+Added a full-screen overlay element that appears behind the menu (but above the rest of the page) whenever the menu is open. Clicking the overlay closes the menu using the same handler as the nav links, giving users a natural "click away to close" interaction.
+
+For the scroll issue, switched `body.menu-open` from `overflow: hidden` to `position: fixed`, which reliably prevents scrolling on touch devices by removing the body from the normal scrollable document flow entirely. The page's scroll position is recorded in JavaScript before the menu opens and restored with `window.scrollTo()` after it closes, so the user returns to where they were rather than being left at the top of the page.
+
+All menu-state changes (open/close, overlay visibility, body lock, ARIA attributes) were consolidated into a single `setMenuOpen(isOpen)` function, called by the hamburger button, the overlay, and each nav link, to avoid duplicating the same logic in three places.
 
 ---
 
 # What Was Learned So Far
 
-- Large refactors in Git can represent organised restructuring rather than major logic changes.
-- Flask application factories provide better scalability than single-file applications.
-- Environment variables help protect sensitive configuration.
-- Database relationships require careful planning of keys and relationships.
-- Flask-Migrate allows database changes without manually recreating tables.
-- API keys should be rotated immediately if accidentally exposed.
-- External APIs require validation because returned data may not always match expectations.
-- API failures and empty results should be handled separately.
-- Retry logic improves reliability when dealing with temporary failures.
-- API data may require processing before displaying it to users.
-- Python regular expressions can be used to clean unwanted HTML markup from external data.
-- Frontend testing is important because issues may only appear after real API data is displayed.
-- External API responses may require sanitisation before being shown to users.
-- Responsive layouts need testing across multiple screen sizes, not only desktop.
-- Reusable helper functions reduce duplicated API handling logic.
-- Small UI features such as search clearing and password visibility improve usability.
-- External API data often requires filtering and selection logic to create meaningful user experiences.
-- Responsive components require testing with real content because API data can expose layout issues not visible with placeholders.
-- Image quality and source resolution should be considered when designing media-heavy interfaces.
-- Interactive components often require coordination between HTML, CSS, JavaScript, and backend data.
-- Constructing third-party URLs requires the correct search path and query parameters, not just the domain and an identifier.
-- UI state (such as active navigation indicators) needs to be explicitly synced with application state; it does not update automatically just because the underlying data changes.
-- Not all API results include every expected field, so defensive access patterns (e.g. `.get()` with defaults) are necessary when consuming third-party data.
+- Large Git refactors often represent organised restructuring rather than logic changes; Flask application factories, environment variables, and separated helper functions all improve scalability, security, and maintainability over single-file setups.
+- Database relationships and migrations require careful planning; Flask-Migrate allows schema changes without manually recreating tables.
+- External API data cannot be trusted at face value: responses need validation, sanitisation (e.g. stripping HTML markup), and defensive access patterns (`.get()` with defaults) since not every result includes every expected field.
+- API failures and empty results should be handled separately, with retry logic (correctly scoped — a counter placed outside its loop can silently break the retry limit) improving reliability against temporary failures. Rotate API keys immediately if accidentally exposed.
+- Getting genuinely varied results from an API often requires randomising more than the query itself (e.g. also randomising the result offset).
+- Constructing third-party URLs requires the correct search path and query parameters, not just a domain and identifier.
+- Frontend and responsive testing must happen with real API data, not placeholders, since layout and image-quality issues often only surface once live content is displayed.
+- UI state (active indicators, scroll position, menu visibility) doesn't sync automatically — it must be explicitly managed, and consolidating that logic into a single function avoids triggers falling out of sync with each other.
+- `overflow: hidden` alone isn't a reliable scroll lock on touch devices; `position: fixed` with manually preserved/restored scroll position is more robust.
+- Mismatched or miscounted closing tags don't raise errors — they silently change element nesting, which can look like a CSS bug at first glance.
 
 ---
 
@@ -663,3 +728,6 @@ https://flask.palletsprojects.com/en/latest/patterns/appfactories/
 
 - Alembic Migration Tool:  
 https://alembic.sqlalchemy.org/
+
+- Pagination with Python:  
+https://www.geeksforgeeks.org/python/how-to-do-pagination-in-python/
