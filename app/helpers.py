@@ -117,27 +117,30 @@ def fetch_json(params, url=BASE_URL):
         return None
 
 
-def search_books(query, max_results=20):
+def search_books(query, max_results=20, start_index=0):
     """
     Searches Google Books using a title,
     author or keyword.
     """
 
-    data = fetch_json({
-        "q": query,
-        "maxResults": max_results,
-        "printType": "books"
-    })
+    # Add retry logic to handle 'No results found' errors or temporary API issues
+    attempts = 0
 
-    if not data:
-        return []
+    while attempts < 3:
+        data = fetch_json({
+            "q": query,
+            "maxResults": max_results,
+            "startIndex": start_index,
+            "printType": "books"
+        })
 
-    books = data.get("items", [])
+        if data and "items" in data:
+            return [add_custom_links(book) for book in data["items"]]
 
-    return [
-        add_custom_links(book)
-        for book in books
-    ]
+        attempts += 1
+
+    return []
+
 
 
 def get_book_details(volume_id):
@@ -163,26 +166,25 @@ def get_random_books(count=5):
     books for the homepage carousel.
     """
 
-    # Attempt to fetch books from a random genre up to 3 times
+    # Use same retry logic as in search_books to handle 'No results found' errors or temporary API issues
     attempts = 0
     
     while attempts < 3:
 
         genre = random.choice(FEATURED_GENRES)
+        start_index = random.randint(0, 40)  # Random start index for carousel books to avoid always showing the same books for a genre
 
         data = fetch_json({
             "q": f"subject:{genre}",
-            "maxResults": count
+            "maxResults": count,
+            "startIndex": start_index
         })
 
         if data and "items" in data:
             books = data.get("items", [])
 
-            return [
-                add_custom_links(book)
-                for book in books[:count]
-            ]
+            return [add_custom_links(book) for book in books[:count]]
 
-    attempts += 1
+        attempts += 1
 
     return []
