@@ -70,28 +70,28 @@
 
                 <div class="slider-carousel">
 
-                    {% for book in featured_books %}
+                {% for book in featured_books %}
 
-                        <div class="slide {% if loop.first %}active{% endif %}">
+                    <div class="slide {% if loop.first %}active{% endif %}">
 
-                            <a href="{{ url_for('routes.book_detail', book_id=book.id) }}">
+                        <a href="{{ url_for('routes.book_detail', book_id=book.id) }}">
 
-                                {% set image_links = book.volumeInfo.get("imageLinks", {}) %}
+                        {% set image_links = book.volumeInfo.get("imageLinks", {}) %}
 
-                                {% if image_links.get("thumbnail") %}
-                                    <img 
-                                        src="{{ image_links.get('thumbnail') }}"
-                                        alt="{{ book.volumeInfo.get('title', 'Unknown title') }}"
-                                        onerror="this.src='/static/images/no-cover.png'"
-                                    >
-                                {% else %}
-                                    <img 
-                                        src="/static/images/no-cover.png"
-                                        alt="No cover available"
-                                    >
-                                {% endif %}
+                        {% if image_links.get("thumbnail") %}
+                            <img 
+                                src="{{ image_links.get('thumbnail') }}"
+                                alt="{{ book.volumeInfo.get('title', 'Unknown title') }}"
+                                onerror="this.src='/static/images/no-cover.png'"
+                            >
+                        {% else %}
+                            <img 
+                                src="/static/images/no-cover.png"
+                                alt="No cover available"
+                            >
+                        {% endif %}
 
-                            </a>
+                        </a>
 
                         <div class="slide-text">
 
@@ -103,31 +103,25 @@
 
                     </div>
 
-                    {% endfor %}
-
-                </div>
-
-                <div class="carousel-nav">
-
-                    <button class="prev">&#10094;</button>
-
-                    <button class="next">&#10095;</button>
+                {% endfor %}
 
                 </div>
 
             </div>
 
-            <div class="navigation-dots">
+            <div class="carousel-nav">
 
-                {% for book in featured_books %}
-                    <span class="dot"></span>
-                {% endfor %}
+                <button class="prev">&#10094;</button>
+                <div class="navigation-dots">
+                    {% for book in featured_books %}
+                        <span class="dot {% if loop.first %}active{% endif %}"></span>
+                    {% endfor %}
+                </div>
+                <button class="next">&#10095;</button>
 
             </div>
 
         </div>
-
-    </div>
 
 </section>
 

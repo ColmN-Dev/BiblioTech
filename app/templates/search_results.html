@@ -24,8 +24,33 @@
     {% endfor %}
 </div>
 
+<div class="pagination">
+
+    <span class="page-label">Page {{ page }}</span>
+
+    {% if page > 1 %}
+        <a href="{{ url_for('routes.search_results', query=query, page=page-1) }}" class="btn pagination-link">&laquo; Previous</a>
+    {% endif %}
+
+    {# Define the pagination window  and display 2 previous pages #}
+    {% set window = 2 %}
+    {% set start_page = [1, page - window]|max %}
+    {% set end_page = start_page + 4 %}
+
+    {# Display page numbers based on what page number is displayed #}
+    {% for p in range(start_page, end_page + 1) %}
+        <a href="{{ url_for('routes.search_results', query=query, page=p) }}" class="btn pagination-link {% if p == page %}active-page{% endif %}" {% if p == page %}aria-current="page"{% endif %}>
+        {{ p }}
+        </a>
+    {% endfor %}
+    {% if results|length == per_page %}
+        <a href="{{ url_for('routes.search_results', query=query, page=page+1) }}" class="btn pagination-link">&raquo; Next</a>
+    {% endif %}
+
+</div>
+
 {% if error %}
-    <div class="error-message">
+    <div class="error-message highlighted-text">
         <p>{{ error }}</p>
     </div>
 {% elif not results %}
