@@ -19,17 +19,23 @@ def index():
 def search_results():
     """If the search query is empty, redirect to the home page. Otherwise, render the search results page with the query."""
     query = request.args.get("query", "").strip()
+    page = request.args.get("page", 1, type=int)
     
     if not query:
         return redirect(url_for("routes.index"))
     
-    results = search_books(query)
+    # Set the number of results per page and calculate the start index for pagination
+    per_page = 20
+    start_index = (page - 1) * per_page
+
+    # Step back until we land on a page with results, or page 1 if nothing exists.
+    results = search_books(query, max_results=per_page, start_index=start_index)
+    while page > 1 and not results:
+        page -= 1
+        start_index = (page - 1) * per_page
+        results = search_books(query, max_results=per_page, start_index=start_index)
     
-    if results is None:
-        # Handle the case where the API request failed
-        return render_template("search_results.html", query=query, results=[], error="Failed to fetch search results. Please try again later.")
-    
-    return render_template("search_results.html", query=query, results=results)
+    return render_template("search_results.html", query=query, results=results, page=page, per_page=per_page)
 
 
 # BOOK DETAIL
