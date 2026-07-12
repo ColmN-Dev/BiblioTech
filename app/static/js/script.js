@@ -4,95 +4,119 @@
 
     // Wrap everything in an IIFE to avoid leaking variables into the global scope.
 
-    // ==========================
-    // HAMBURGER MENU
-    // ==========================
+        // ==========================
+        // HAMBURGER MENU
+        // ==========================
 
-    const hamburger = document.querySelector(".hamburger");
-    const mobileMenu = document.querySelector(".mobile-menu");
+        const hamburger = document.querySelector(".hamburger");
+        const mobileMenu = document.querySelector(".mobile-menu");
+        const menuOverlay = document.querySelector(".menu-overlay");
 
-    if (hamburger && mobileMenu) {
+        // Variable to store the scroll position when the menu is opened.
+        let scrollPosition = 0;
 
-        hamburger.addEventListener("click", () => {
+        function setMenuOpen(isOpen) {
 
-            mobileMenu.classList.toggle("open");
-            document.body.classList.toggle("menu-open");
+            mobileMenu.classList.toggle("open", isOpen);
+            menuOverlay.classList.toggle("active", isOpen);
+            document.body.classList.toggle("menu-open", isOpen);
 
-            const isOpen = mobileMenu.classList.contains("open");
+            // Prevent background scrolling when the menu is open.
+            if (isOpen) {
+                scrollPosition = window.scrollY;
+                document.body.style.top = `-${scrollPosition}px`;
+            } else {
+                document.body.style.top = "";
+                window.scrollTo(0, scrollPosition);
+            }
 
-            // Keep ARIA state in sync for screen readers.
-            hamburger.setAttribute("aria-expanded", String(isOpen));
+            // Update ARIA attributes for accessibility.
+            hamburger.setAttribute("aria-label", isOpen ? "Close menu" : "Open menu");
+            hamburger.setAttribute("aria-pressed", String(isOpen));
             mobileMenu.setAttribute("aria-hidden", String(!isOpen));
+            hamburger.setAttribute("aria-expanded", String(isOpen));
+            menuOverlay.setAttribute("aria-hidden", String(!isOpen));
 
-        });
+        }
+
+        if (hamburger && mobileMenu && menuOverlay) {
+
+            // Toggle the menu open/closed when the hamburger icon is clicked.
+            hamburger.addEventListener("click", () => {
+                setMenuOpen(!mobileMenu.classList.contains("open"));
+            });
+
+            // Close the menu when clicking outside of it (menu overlay).
+            menuOverlay.addEventListener("click", () => {
+                setMenuOpen(false);
+            });
+
+            // Close the menu when pressing the Escape key.
+            document.addEventListener("keydown", (event) => {
+                if (event.key === "Escape" && mobileMenu.classList.contains("open")) {
+                    setMenuOpen(false);
+                }
+            });
+
+            // Close the menu when clicking on any link inside it.
+            mobileMenu.querySelectorAll("a").forEach((link) => {
+                link.addEventListener("click", () => {
+                    setMenuOpen(false);
+                });
+            });
+
+        }
 
 
-        mobileMenu.querySelectorAll("a").forEach((link) => {
+        // ==========================
+        // SEARCH INPUT CLEAR BUTTON
+        // ==========================
 
-            link.addEventListener("click", () => {
+        const searchInput = document.getElementById("searchInput");
+        const clearBtn = document.getElementById("clearBtn");
 
-                mobileMenu.classList.remove("open");
-                document.body.classList.remove("menu-open");
+        if (searchInput && clearBtn) {
 
-                hamburger.setAttribute("aria-expanded", "false");
-                mobileMenu.setAttribute("aria-hidden", "true");
+            searchInput.addEventListener("input", () => {
+
+                if (searchInput.value.trim() !== "") {
+                    clearBtn.classList.add("visible");
+                } else {
+                    clearBtn.classList.remove("visible");
+                }
 
             });
 
-        });
 
-    }
-
-
-    // ==========================
-    // SEARCH INPUT CLEAR BUTTON
-    // ==========================
-
-    const searchInput = document.getElementById("searchInput");
-    const clearBtn = document.getElementById("clearBtn");
-
-    if (searchInput && clearBtn) {
-
-        searchInput.addEventListener("input", () => {
-
-            if (searchInput.value.trim() !== "") {
-                clearBtn.classList.add("visible");
-            } else {
-                clearBtn.classList.remove("visible");
-            }
-
-        });
-
-
-        clearBtn.addEventListener("click", () => {
-
-            searchInput.value = "";
-
-            clearBtn.classList.remove("visible");
-
-            searchInput.focus();
-
-        });
-
-
-        searchInput.addEventListener("keydown", (event) => {
-
-            if (event.key === "Escape") {
+            clearBtn.addEventListener("click", () => {
 
                 searchInput.value = "";
 
                 clearBtn.classList.remove("visible");
 
+                searchInput.focus();
+
+            });
+
+
+            searchInput.addEventListener("keydown", (event) => {
+
+                if (event.key === "Escape") {
+
+                    searchInput.value = "";
+
+                    clearBtn.classList.remove("visible");
+
+                }
+
+            });
+
+
+            if (searchInput.value.trim() !== "") {
+                clearBtn.classList.add("visible");
             }
 
-        });
-
-
-        if (searchInput.value.trim() !== "") {
-            clearBtn.classList.add("visible");
         }
-
-    }
 
 
     // ==========================
