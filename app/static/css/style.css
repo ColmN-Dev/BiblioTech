@@ -286,6 +286,28 @@ header,
    MOBILE MENU
    ======================================== */
 
+.menu-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+}
+
+.menu-overlay.active {
+  display: block;
+}
+
+body.menu-open {
+  position: fixed;
+  width: 100%;
+  overflow: hidden;
+}
+
+
 .mobile-menu {
     position: fixed;
     top: 0;
@@ -322,10 +344,6 @@ header,
 .mobile-toggle {
     margin-top: 1rem;
     justify-content: flex-start;
-}
-
-body.menu-open {
-    overflow: hidden;
 }
 
 .mobile-menu a {
@@ -639,8 +657,8 @@ body.menu-open {
 
 .book-card img {
   width: 100%;
-  height: 250px;
-  object-fit: cover;
+  aspect-ratio: 2 / 3;
+  object-fit: contain;
   background-color: var(--border-color);
 }
 
@@ -747,7 +765,7 @@ body.menu-open {
 .slider-carousel {
   position: relative;
   flex: 1;
-  aspect-ratio: 8 / 5;
+  aspect-ratio: 4 / 5;
   min-height: 300px;
   max-width: 300px;
   margin: 0 auto;
@@ -799,52 +817,49 @@ body.menu-open {
   margin-bottom: 0.25rem;
 }
 
-/* Carousel Nav Buttons */
+/* Carousel Nav Row (arrows + dots together) */
+.carousel-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  padding: 1rem 0;
+}
+
 .carousel-nav .prev,
 .carousel-nav .next {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  position: static;
+  transform: none;
 
-  padding: 1rem;
+  padding: 0.7rem;
 
   background: #222222;
   color: #ffffff;
 
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: bold;
 
   cursor: pointer;
   user-select: none;
 
-  border-radius: 50%;
+  border-radius: 25%;
   border: 1px solid #444;
 
   transition: background-color 0.3s ease, transform 0.2s ease;
-
-  z-index: 10;
-}
-
-.carousel-nav .prev {
-  left: 1rem;
-}
-
-.carousel-nav .next {
-  right: 1rem;
 }
 
 .carousel-nav .prev:hover,
 .carousel-nav .next:hover {
   background: var(--gold);
-  transform: translateY(-50%) scale(1.1);
+  transform: scale(1.1);
 }
 
 /* Navigation Dots */
 .navigation-dots {
   display: flex;
+  align-items: center;
   justify-content: center;
   gap: 0.75rem;
-  padding: 1rem 0;
 }
 
 .dot {
@@ -1173,6 +1188,60 @@ button[type="submit"]:hover,
     margin-top: 1rem;
 }
 
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 1200px;
+  margin: 2rem auto 0;
+  padding: 0 1.5rem 1rem;
+}
+
+.pagination span {
+  font-family: var(--body-font);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.pagination .page-label {
+  flex-basis: 100%;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.15);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0.5rem;
+}
+
+.pagination .pagination-link {
+  min-width: 3rem;
+}
+
+.pagination .pagination-link.active-page,
+.pagination .pagination-link[aria-current="page"] {
+  background-color: var(--ivory);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .pagination .pagination-link.active-page,
+[data-theme="dark"] .pagination .pagination-link[aria-current="page"] {
+  background-color: var(--ivory);
+  color: var(--text-dark);
+}
+
+.error-message {
+  text-align: center;
+  max-width: 700px;
+  margin: 2rem auto;
+  color: #8b2d2d;
+}
+
+.error-message p {
+  margin-bottom: 0;
+}
+
 .spinner-container {
   display: flex;
   flex-direction: column;
@@ -1364,6 +1433,17 @@ button[type="submit"]:hover,
     gap: 1.25rem;
   }
 
+  .pagination {
+    gap: 0.5rem;
+    padding: 0 1rem 1rem;
+  }
+
+  .pagination .pagination-link {
+    min-width: 2.5rem;
+    font-size: 0.9rem;
+  }
+
+
   h1 { font-size: 2.25rem; }
   h2 { font-size: 1.75rem; }
 
@@ -1492,13 +1572,24 @@ button[type="submit"]:hover,
     padding: 0 1rem;
   }
 
+  .pagination {
+    gap: 0.4rem;
+  }
+
+  .pagination .pagination-link {
+    min-width: 2.25rem;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.85rem;
+  }
+
+  .pagination .page-label {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+  }
+
   .book-card {
     max-width: 300px;
     margin: 0 auto;
-  }
-
-  .book-card img {
-    height: 180px;
   }
 
   .book-card-content {
