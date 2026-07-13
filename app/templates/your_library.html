@@ -12,4 +12,9 @@
 
 <h1>Your Library</h1>
 <p class="highlighted-text">Here you can manage your personal book collection.</p>
+
+        <form method="POST" action="{{ url_for('auth.logout') }}">
+            <button type="submit" id="logout" class="auth-action-button" aria-label="Submit logout form">Logout</button>
+        </form>
+
 {% endblock %}

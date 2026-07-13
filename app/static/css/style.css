@@ -1,6 +1,6 @@
 /* ========================================
    BiblioTech - Main Stylesheet
-   Charcoal + Warm Ivory + Muted Gold + Emerald + Maroon
+   Charcoal + Warm Ivory + Muted Gold
    Cinzel (headings) + Roboto (body/buttons/forms)
    ======================================== */
 
@@ -10,8 +10,6 @@
   --charcoal: #2b2b2b;
   --ivory: #faebc8;
   --gold: #ab8352;
-  --emerald: #2d5a4e;
-  --maroon: #6b3e3e;
   --light-blue: #dbe7e8;
   --dark-blue: #7fa5a8;
   --text-dark: #1a1a1a;
@@ -384,21 +382,15 @@ body.menu-open {
 }
 
 .flash.success {
-  background-color: var(--emerald);
-  color: #eafcf1;
-  border-left: 4px solid #1a3d33;
+    background-color: rgba(23, 77, 48, 0.88);
+    border-color: #4fb879;
+    color: #eafcf1;
 }
 
 .flash.error {
-  background-color: var(--maroon);
-  color: #fff1f1;
-  border-left: 4px solid #4a2626;
-}
-
-.flash.info {
-  background-color: var(--gold);
-  color: var(--charcoal);
-  border-left: 4px solid #8a6a40;
+    background-color: rgba(110, 28, 28, 0.9);
+    border-color: #d67272;
+    color: #fff1f1;
 }
 
 /* ========== SEARCH BAR ========== */
@@ -1124,6 +1116,29 @@ button[type="submit"]:hover,
   color: var(--text-dark);
   font-weight: 600;
   margin-left: 0.5rem;
+}
+
+
+#logout {
+  display: block;
+  margin: 1rem auto 0;
+  background-color: red;
+  border: 2px solid var(--charcoal);
+  color: var(--text-primary);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-family: var(--body-font);
+  font-size: 1.5em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+#logout:hover {
+  background-color: #800000;
+  color: var(--text-light);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+  transform: translateY(-3px);
 }
 
 /* Shake animation for form errors */

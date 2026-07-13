@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, redirect, request, url_for, session
+from flask import Blueprint, render_template, redirect, request, url_for
+from flask_login import login_required
 from app.helpers import search_books, get_book_details, get_random_books, FEATURED_GENRES
 import re 
 
@@ -58,31 +59,13 @@ def book_detail(book_id):
     return render_template("book_detail.html", book=book)
 
 
-# LIBRARY
-@routes.route("/library")
-def your_library():
-    return render_template("your_library.html")
-
-
 # ABOUT
 @routes.route("/about")
 def about():
     return render_template("about.html")
 
-
-# AUTH - SIGNUP
-@routes.route("/auth/signup", methods=["GET", "POST"])
-def signup():
-    return render_template("auth/signup.html")
-
-# AUTH - LOGIN
-@routes.route("/auth/login", methods=["GET", "POST"])
-def login():
-    return render_template("auth/login.html")
-
-
-# AUTH - LOGOUT
-@routes.route("/auth/logout")
-def logout():
-    session.clear()
-    return redirect(url_for("routes.login"))
+# LIBRARY
+@routes.route("/library")
+@login_required
+def your_library():
+    return render_template("your_library.html")

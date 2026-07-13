@@ -54,8 +54,13 @@
             <a href="{{ url_for('routes.index') }}">Home</a>
             <a href="{{ url_for('routes.about') }}">About</a>
             <a href="{{ url_for('routes.your_library') }}">Your Library</a>
-            <a href="{{ url_for('routes.signup') }}">Sign up</a>
-            <a href="{{ url_for('routes.login') }}">Login</a>
+
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('auth.signup') }}">Sign Up</a>
+                <a href="{{ url_for('auth.login') }}">Login</a>
+            {% endif %}
 
             <button type="button"
                     id="theme-toggle"
@@ -92,10 +97,15 @@
         aria-hidden="true">
 
         <a href="{{ url_for('routes.index') }}">Home</a>
-        <a href="{{ url_for('routes.about') }}">About</a>
-        <a href="{{ url_for('routes.your_library') }}">Your Library</a>
-        <a href="{{ url_for('routes.signup') }}">Sign up</a>
-        <a href="{{ url_for('routes.login') }}">Login</a>
+            <a href="{{ url_for('routes.about') }}">About</a>
+            <a href="{{ url_for('routes.your_library') }}">Your Library</a>
+
+            {% if current_user.is_authenticated %}
+            <a href="{{ url_for('auth.logout') }}">Logout</a>
+            {% else %}
+                <a href="{{ url_for('auth.signup') }}">Sign Up</a>
+                <a href="{{ url_for('auth.login') }}">Login</a>
+            {% endif %}
 
         <button class="dark-mode-toggle mobile-toggle" id="mobile-theme-toggle">
         <img src="{{ url_for('static', filename='images/moon.png') }}"
@@ -111,13 +121,13 @@
                 {% for category, message in messages %}
                     {% if category == "success" %}
                         <div class="flash success">
+                            {{ message }}
+                        </div>
                     {% elif category == "error" %}
                         <div class="flash error">
-                    {% else %}
-                        <div class="flash info">
+                            {{ message }}
+                        </div>
                     {% endif %}
-                        {{ message }}
-                    </div>
                 {% endfor %}
             </div>
         {% endif %}
