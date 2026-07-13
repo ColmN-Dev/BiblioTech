@@ -1,6 +1,37 @@
 # BiblioTech Documentation
 
-**Last updated:** July 12, 2026
+**Last updated:** July 13, 2026
+
+---
+
+# Table of Contents
+
+1. Overview  
+2. Project Development Summary  
+   - Initial Structure  
+   - Migration to Flask Application Factory Structure  
+   - Runtime and Deployment  
+3. Current Architecture  
+   - Application Factory  
+   - Configuration  
+   - Entry Point  
+   - Folder Structure (Updated With Auth Package)  
+4. Current Routes  
+   - Main Routes  
+   - Auth Routes  
+5. Frontend Status  
+6. Database and Models  
+7. Planned Features vs Current State  
+8. Current Limitations  
+9. Key Design Decisions  
+10. Google Books API Integration  
+11. API Reliability Improvements  
+12. Frontend Improvements  
+13. Design Pattern Note: Facade  
+14. Challenges Faced and Solutions  
+15. What Was Learned So Far  
+16. Next Milestones  
+17. References  
 
 ---
 
@@ -38,6 +69,9 @@ The project was refactored into a package-based structure:
   - models.py
   - routes.py
   - helpers.py
+   - auth/
+      - __init__.py
+      - routes.py
   - templates/
   - static/
 
@@ -90,17 +124,31 @@ Sensitive configuration is stored outside the codebase using environment variabl
 
 # Current Routes
 
-`app/routes.py` currently provides:
+Routing is split by responsibility:
+
+## Main Routes (`app/routes.py`)
 
 | Route | Purpose |
 |---|---|
 | `/` | Homepage |
-| `/search` | Search results |
+| `/search-results` | Search results |
 | `/book/<book_id>` | Book details |
-| `/library` | User library placeholder |
-| `/auth/login` | Login page |
-| `/auth/signup` | Signup page |
-| `/auth/logout` | Clears session |
+| `/library` | User library (login required) |
+| `/about` | About page |
+
+## Auth Routes (`app/auth/routes.py`)
+
+| Route | Purpose |
+|---|---|
+| `/auth/login` | Login page / login handler |
+| `/auth/signup` | Signup page / registration handler |
+| `/auth/logout` | Logout handler |
+
+Template links use blueprint-qualified endpoint names:
+
+- `url_for('auth.login')`
+- `url_for('auth.signup')`
+- `url_for('auth.logout')`
 
 The search route is connected to live Google Books API data, and book detail pages retrieve individual book information from the API.
 
@@ -226,6 +274,11 @@ Stores user reviews:
 - Cleaned API descriptions containing HTML markup
 - Responsive frontend layouts
 - Styled authentication pages
+- User signup with password validation
+- Password hashing with Flask-Bcrypt
+- User login/logout with Flask-Login
+- `@login_required` protection on the library route
+- Navigation updates based on authentication state
 - Password visibility toggle
 - Search input clear functionality
 - Improved navigation with back-to-home buttons
@@ -247,10 +300,9 @@ Stores user reviews:
 
 # Current Limitations
 
-1. Authentication pages have been created, but registration and login logic are not yet connected.
-2. Library and review functionality are not yet connected to the database.
-3. Search autocomplete and filtering features are still planned.
-4. Google Books API thumbnails vary in aspect ratio and quality between books, which can produce inconsistent layout results (e.g. whitespace or cropping) despite CSS handling.
+1. Library and review functionality are not yet fully connected to persistent database workflows.
+2. Search autocomplete and filtering features are still planned.
+3. Google Books API thumbnails vary in aspect ratio and quality between books, which can produce inconsistent layout results (e.g. whitespace or cropping) despite CSS handling.
 
 ---
 
@@ -486,7 +538,9 @@ Additional issues were discovered during frontend testing:
 
 ### Solution
 
-The random book generation system was improved by replacing random character searches with a predefined list of popular genres:
+The random book generation system was improved by replacing random character searches with a predefined list of popular genres.
+
+For example:
 
 - Fiction
 - Mystery
@@ -655,6 +709,24 @@ All menu-state changes (open/close, overlay visibility, body lock, ARIA attribut
 
 ---
 
+## Challenge 15: Splitting Auth Routes into `app/auth/routes.py`
+
+### Challenge
+
+When authentication routes were moved from `app/routes.py` into `app/auth/routes.py`, three issues appeared during integration:
+
+- Existing links still pointed to old endpoint names and needed to be updated to `auth.*` endpoints.
+- A circular import risk appeared between `app/__init__.py` and `app/auth/routes.py` during blueprint registration.
+- Model relationship references required debugging during auth/database wiring.
+
+### Solution
+
+- Registered the auth blueprint through the application factory with import order set to avoid circular imports.
+- Updated endpoint usage in templates and redirects to `auth.login`, `auth.signup`, and `auth.logout`.
+- Added and validated required `db.relationship(...)` references and fixed broken references uncovered during debugging.
+
+---
+
 # What Was Learned So Far
 
 - Large Git refactors often represent organised restructuring rather than logic changes; Flask application factories, environment variables, and separated helper functions all improve scalability, security, and maintainability over single-file setups.
@@ -667,15 +739,15 @@ All menu-state changes (open/close, overlay visibility, body lock, ARIA attribut
 - UI state (active indicators, scroll position, menu visibility) doesn't sync automatically — it must be explicitly managed, and consolidating that logic into a single function avoids triggers falling out of sync with each other.
 - `overflow: hidden` alone isn't a reliable scroll lock on touch devices; `position: fixed` with manually preserved/restored scroll position is more robust.
 - Mismatched or miscounted closing tags don't raise errors — they silently change element nesting, which can look like a CSS bug at first glance.
+- Blueprint endpoint naming and import order matter in modular Flask refactors; using `auth.*` endpoint names and controlled blueprint registration avoids circular import issues.
 
 ---
 
 # Next Milestones
 
-1. Implement authentication logic (registration, login, logout).
-2. Connect User_Library functionality.
-3. Implement reviews and ratings.
-4. Add search improvements such as autocomplete and filtering.
+1. Connect User_Library functionality.
+2. Implement reviews and ratings.
+3. Add search improvements such as autocomplete and filtering.
 
 ---
 
@@ -731,3 +803,9 @@ https://alembic.sqlalchemy.org/
 
 - Pagination with Python:  
 https://www.geeksforgeeks.org/python/how-to-do-pagination-in-python/
+
+- Flask-SQLAlchemy Relationships:
+https://dev.to/freddiemazzilli/flask-sqlalchemy-relationships-exploring-relationship-associations-igo
+
+- Flask-Login Documentation: 
+https://flask-login.readthedocs.io/en/latest/

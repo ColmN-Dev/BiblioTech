@@ -27,11 +27,16 @@ The codebase currently includes:
 - Corrected marketplace buy links on the book detail page
 - Responsive frontend layouts
 - Styled authentication pages
+- User signup with password validation
+- Password hashing with Flask-Bcrypt
+- User login/logout with Flask-Login
+- Login-protected library route with `@login_required`
+- Navigation updates based on authentication state
 - Password visibility toggle
 - Search input clearing functionality
 - Mobile navigation menu with overlay and background scroll lock
 
-Additional features, including authentication logic, personal library functionality, and reviews, are still being implemented.
+Additional features, including full personal library workflows and reviews, are still being implemented.
 
 The database models have been designed and the initial migration has been successfully applied using Flask-Migrate.
 
@@ -69,6 +74,9 @@ BiblioTech/
 │   ├── models.py
 │   ├── routes.py
 │   ├── helpers.py
+│   ├── auth/
+│   │   ├── __init__.py
+│   │   └── routes.py
 │   │
 │   ├── templates/
 │   │
@@ -128,6 +136,24 @@ For database management commands:
 ```bash
 python -m flask db <command>
 ```
+
+## Routing Structure
+
+- `app/routes.py` → main pages (`/`, `/search-results`, `/book/<book_id>`, `/library`, `/about`)
+- `app/auth/routes.py` → auth routes (`/auth/login`, `/auth/signup`, `/auth/logout`)
+- `app/auth/__init__.py` → auth blueprint setup
+
+Template links and redirects for authentication use blueprint-qualified endpoints:
+
+- `url_for('auth.login')`
+- `url_for('auth.signup')`
+- `url_for('auth.logout')`
+
+## Refactor Notes
+
+- Route links were updated from old endpoint references to `auth.*` where required.
+- Blueprint import/registration order was adjusted to avoid circular import issues between `app/__init__.py` and `app/auth/routes.py`.
+- Required `db.relationship(...)` references were added/debugged during auth integration.
 
 ## Implemented Routes
 
