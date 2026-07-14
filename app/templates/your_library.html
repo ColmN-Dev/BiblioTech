@@ -8,13 +8,43 @@
 <a href="{{ url_for('routes.index') }}" class="btn">
     &larr; Back to Home
 </a>
+
+<form method="POST" action="{{ url_for('auth.logout') }}">
+    <button type="submit" id="logout" class="auth-action-button" aria-label="Submit logout form">Log out</button>
+</form>
+
 </div>
 
 <h1>Your Library</h1>
+<h2> User: {{ current_user.username }} | Saved Books: {{ total }}</h2>
+<h2>Member since: {{ current_user.date_created.strftime("%d %B %Y") }}</h2>
+
 <p class="highlighted-text">Here you can manage your personal book collection.</p>
 
-        <form method="POST" action="{{ url_for('auth.logout') }}">
-            <button type="submit" id="logout" class="auth-action-button" aria-label="Submit logout form">Logout</button>
-        </form>
+{% if books %}
+    <div class="results-grid">
+        {% for entry in library_entries %}
+        <a href="{{ url_for('routes.book_detail', book_id=entry.book.google_book_id) }}">
+            <div class="book-card">
+                <img 
+                    src="{{ entry.book.cover_image if entry.book.cover_image else url_for('static', filename='images/no-cover.png') }}"
+                    alt="{{ entry.book.title }}">
+                <h3>{{ entry.book.title }}</h3>
+                <p>{{ entry.book.authors if entry.book.authors else "Unknown Author" }}</p>
+                <p>Added to library: {{ entry.date_created.strftime("%d %B %Y") }}</p>
+            </div>
+            <form action="{{ url_for('routes.remove_from_library', book_id=entry.book.google_book_id) }}" method="POST" class="remove-form">
+                <button type="submit">
+                    Remove from Library
+                </button>
+            </form>
+        </a>
+        {% endfor %}
+    </div>
+{% else %}
+    <div class="empty-state">
+        <p class="highlighted-text">Your library is currently empty. Start adding books to your collection!</p>
+    </div>
+{% endif %}
 
 {% endblock %}

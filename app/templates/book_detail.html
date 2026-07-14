@@ -22,6 +22,30 @@
 
         <h1>{{ book.volumeInfo.title }}</h1>
 
+        {% if current_user.is_authenticated %}
+
+            {% if saved %}
+                <form action="{{ url_for('routes.remove_from_library', book_id=book.id) }}" method="POST">
+                    <button type="submit" class="btn">
+                        Remove from Library
+                    </button>
+                </form>
+            {% else %}
+                <form action="{{ url_for('routes.add_to_library', book_id=book.id) }}" method="POST">
+                    <button type="submit" class="btn">
+                        Add to Library
+                    </button>
+                </form>
+            {% endif %}
+
+        {% else %}
+
+            <a href="{{ url_for('auth.login') }}" class="btn">
+                Login to Save Books
+            </a>
+
+        {% endif %}
+
         <div class="book-data-bg">
         <p>
             By:
@@ -29,6 +53,7 @@
             if book.volumeInfo.authors
             else "Unknown Author" }}
         </p>
+
 
         <div class="book-metadata">
 
@@ -98,41 +123,44 @@
         </p>
         </div>
 
-        <div class="book-links">
-            {% if book.volumeInfo.previewLink %}
-            <a href="{{ book.volumeInfo.previewLink }}" target="_blank" class="btn">
-                Preview Book
-            </a>
-            {% endif %}
+        <div class="book-data-bg">
+            <h2 class="link-header">Links</h2>
 
-            {% if book.saleInfo.buyLink %}
-            <a href="{{ book.saleInfo.buyLink }}" target="_blank" class="btn google-play-btn">
-                Google Play Store
-            </a>
-            {% endif %}
-
-            {# Injected External Platform Marketplace Links #}
-            {% if book.volumeInfo.customLinks %}
-                {% if book.volumeInfo.customLinks.amazon %}
-                <a href="{{ book.volumeInfo.customLinks.amazon }}" target="_blank" class="btn amazon-btn">
-                    View on Amazon
+            <div class="book-links">
+                {% if book.volumeInfo.previewLink %}
+                <a href="{{ book.volumeInfo.previewLink }}" target="_blank" class="btn">
+                    Preview Book
                 </a>
                 {% endif %}
 
-                {% if book.volumeInfo.customLinks.goodreads %}
-                <a href="{{ book.volumeInfo.customLinks.goodreads }}" target="_blank" class="btn goodreads-btn">
-                    View on Goodreads
+                {% if book.saleInfo.buyLink %}
+                <a href="{{ book.saleInfo.buyLink }}" target="_blank" class="btn google-play-btn">
+                    Google Play Store
                 </a>
                 {% endif %}
 
-                {% if book.volumeInfo.customLinks.worldcat %}
-                <a href="{{ book.volumeInfo.customLinks.worldcat }}" target="_blank" class="btn worldcat-btn">
-                    Find in Libraries (WorldCat)
-                </a>
+                {# Injected External Platform Marketplace Links #}
+                {% if book.volumeInfo.customLinks %}
+                    {% if book.volumeInfo.customLinks.amazon %}
+                    <a href="{{ book.volumeInfo.customLinks.amazon }}" target="_blank" class="btn amazon-btn">
+                        View on Amazon
+                    </a>
+                    {% endif %}
+
+                    {% if book.volumeInfo.customLinks.goodreads %}
+                    <a href="{{ book.volumeInfo.customLinks.goodreads }}" target="_blank" class="btn goodreads-btn">
+                        View on Goodreads
+                    </a>
+                    {% endif %}
+
+                    {% if book.volumeInfo.customLinks.worldcat %}
+                    <a href="{{ book.volumeInfo.customLinks.worldcat }}" target="_blank" class="btn worldcat-btn">
+                        Find in Libraries (WorldCat)
+                    </a>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
+            </div>
         </div>
-
     </div>
 </div>
 
