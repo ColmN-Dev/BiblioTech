@@ -31,7 +31,7 @@ class Book(db.Model):
     google_book_id = db.Column(db.String(120), primary_key=True)
     title = db.Column(db.String(200), nullable=False)
     authors = db.Column(db.Text)
-    cover_image = db.Column(db.String(200))
+    cover_image = db.Column(db.Text)
     buy_links = db.Column(db.Text)
     date_created = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
     

@@ -172,7 +172,7 @@ def get_random_books(count=5):
     while attempts < 3:
 
         genre = random.choice(FEATURED_GENRES)
-        start_index = random.randint(0, 40)  # Random start index for carousel books to avoid always showing the same books for a genre
+        start_index = random.randint(0, 30)  # Random start index for carousel books to avoid always showing the same books for a genre
 
         data = fetch_json({
             "q": f"subject:{genre}",
