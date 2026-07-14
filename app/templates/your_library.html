@@ -22,7 +22,8 @@
 <p class="highlighted-text">Here you can manage your personal book collection.</p>
 
 {% if books %}
-    <div class="results-grid">
+    <div class="results-grid library-grid">
+        <div class="book-card-wrapper">
         {% for entry in library_entries %}
         <a href="{{ url_for('routes.book_detail', book_id=entry.book.google_book_id) }}">
             <div class="book-card">
@@ -33,13 +34,15 @@
                 <p>{{ entry.book.authors if entry.book.authors else "Unknown Author" }}</p>
                 <p>Added to library: {{ entry.date_created.strftime("%d %B %Y") }}</p>
             </div>
-            <form action="{{ url_for('routes.remove_from_library', book_id=entry.book.google_book_id) }}" method="POST" class="remove-form">
-                <button type="submit">
-                    Remove from Library
-                </button>
-            </form>
         </a>
-        {% endfor %}
+
+        <form action="{{ url_for('routes.remove_from_library', book_id=entry.book.google_book_id) }}" method="POST" class="remove-form">
+            <button type="submit">
+                Remove from Library
+            </button>
+        </form>
+        </div>
+{% endfor %}
     </div>
 {% else %}
     <div class="empty-state">
