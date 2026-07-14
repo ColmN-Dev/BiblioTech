@@ -32,7 +32,7 @@ def signup():
             return render_template("auth/signup.html", username=username)
 
         if not validate_password(password):
-            flash("Password must be at least 8 characters long and contain uppercase, lowercase, and numeric characters.", "error")
+            flash("Password must be at least 8 characters long and contain uppercase, lowercase, numeric and special characters.", "error")
             return render_template("auth/signup.html", username=username)
     
         # Check if the username already exists in the database
