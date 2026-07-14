@@ -4,58 +4,50 @@ BiblioTech is a Flask-based book discovery application. The project has been ref
 
 The application uses the Google Books API to allow users to search for books, view book details, and explore available book information.
 
-## Current Status
+---
 
-The codebase currently includes:
+## Technologies Used
 
-- Flask application factory setup with blueprint registration
-- Environment-based configuration
-- SQLAlchemy initialization
-- PostgreSQL database connection
-- Flask-Migrate configuration
-- Initial database schema and migrations
-- Google Books API integration
-- Centralised API request handling with timeout, retry support, and fallback handling
-- Retry logic for temporary Google Books API failures across search and carousel requests
-- Search functionality with pagination
-- Book detail pages
-- Dynamic homepage quote section
-- Google Books powered homepage carousel
-- Genre-based random book selection for homepage content
-- Homepage genre grid with 24 curated genres linking to search results
-- Carousel navigation controls, active indicators, and auto-rotation
-- Corrected marketplace buy links on the book detail page
-- Responsive frontend layouts
-- Styled authentication pages
-- User signup with password validation
-- Password hashing with Flask-Bcrypt
-- User login/logout with Flask-Login
-- Login-protected library route with `@login_required`
-- Navigation updates based on authentication state
-- Password visibility toggle
-- Search input clearing functionality
-- Mobile navigation menu with overlay and background scroll lock
+- Python
+- Flask
+- PostgreSQL
+- SQLAlchemy
+- Flask-Migrate
+- Flask-Login
+- Flask-Bcrypt
+- Google Books API
+- HTML
+- CSS
+- JavaScript
 
-Additional features, including full personal library workflows and reviews, are still being implemented.
+---
 
-The database models have been designed and the initial migration has been successfully applied using Flask-Migrate.
+## Features
+
+BiblioTech currently includes:
+
+- Flask application factory architecture with Blueprints
+- PostgreSQL integration using Flask-SQLAlchemy and Flask-Migrate
+- Google Books API integration with timeout handling, retries, and fallback behaviour
+- Book search with pagination
+- Individual book detail pages
+- User authentication with Flask-Login and Flask-Bcrypt
+- Personal library CRUD functionality (save, view, and remove books)
+- Responsive homepage with dynamic quotes, genre browsing, and Google Books carousel
+- Mobile-friendly responsive interface with improved navigation
+
+Future development will focus on user reviews, ratings, and enhanced search functionality.
 
 ---
 
 ## Homepage Features
 
-The homepage currently includes dynamic content powered by external data sources.
-
-Features include:
-
-- Rotating quote section using local JSON data
-- Google Books API powered carousel
-- Random book selection based on popular genres
-- Previous and next navigation controls
-- Active slide indicators
-- Automatic carousel rotation with pause-on-hover behaviour
-- Missing cover image fallback handling
-- Genre grid with 24 curated genres linking directly to search results
+- Dynamic quote section
+- Google Books powered carousel
+- Genre-based random book recommendations
+- Automatic carousel rotation with navigation controls
+- Fallback handling for missing book covers
+- Genre grid linking directly to search results
 
 ---
 
@@ -136,6 +128,7 @@ For database management commands:
 ```bash
 python -m flask db <command>
 ```
+---
 
 ## Routing Structure
 
@@ -149,24 +142,36 @@ Template links and redirects for authentication use blueprint-qualified endpoint
 - `url_for('auth.signup')`
 - `url_for('auth.logout')`
 
-## Refactor Notes
-
-- Route links were updated from old endpoint references to `auth.*` where required.
-- Blueprint import/registration order was adjusted to avoid circular import issues between `app/__init__.py` and `app/auth/routes.py`.
-- Required `db.relationship(...)` references were added/debugged during auth integration.
+---
 
 ## Implemented Routes
 
-- `/` → Home (`index.html`)
-- `/search-results` → Query-driven book search using Google Books API, with pagination (`search_results.html`)
-- `/book/<book_id>` → Book detail view using API book information (`book_detail.html`)
-- `/library` → Your library (`your_library.html`)
-- `/about` → About (`about.html`)
-- `/auth/login` → Login (`auth/login.html`)
-- `/auth/signup` → Sign up (`auth/signup.html`)
-- `/auth/logout` → Clear session and redirect to login
+| Route | Purpose |
+|-------|---------|
+| `/` | Homepage |
+| `/search-results` | Search books |
+| `/book/<book_id>` | Book details |
+| `/library` | Personal library |
+| `/about` | About page |
+| `/auth/login` | Login |
+| `/auth/signup` | Register |
+| `/auth/logout` | Logout |
+
+---
 
 ## Documentation
 
 - Planning: [docs/Planning.md](docs/Planning.md)
 - Documentation: [docs/BiblioTech-Documentation.md](docs/BiblioTech-Documentation.md)
+
+---
+
+## Screenshots
+
+### Homepage 
+
+![Homepage](app/static/images/Homepage.png)
+
+### Your Library - Light Mode
+
+![Your Library](app/static/images/Your_Library.png)

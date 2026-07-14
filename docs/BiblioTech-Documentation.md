@@ -252,57 +252,25 @@ Stores user reviews:
 
 - Search autocomplete
 - Genre filtering
-- Authentication
-- Personal library system
 - Reviews and ratings
+- Account disable feature
 
 ## Completed Features
 
-- Flask application factory architecture
-- Blueprint routing
-- SQLAlchemy integration
-- Flask-Migrate setup
-- Database schema creation
-- Model implementation
-- Deployment configuration
-- Environment-based configuration
-- Google Books API integration
-- Search functionality
-- Book detail retrieval
-- Missing cover fallback handling
-- API reliability improvements with timeout and retry handling
-- Cleaned API descriptions containing HTML markup
-- Responsive frontend layouts
-- Styled authentication pages
-- User signup with password validation
-- Password hashing with Flask-Bcrypt
-- User login/logout with Flask-Login
-- `@login_required` protection on the library route
-- Navigation updates based on authentication state
-- Password visibility toggle
-- Search input clear functionality
-- Improved navigation with back-to-home buttons
-- Dynamic quote fetch from a list of 50 quotes from `app/data/quotes.json`
-- Dynamic homepage book carousel using Google Books API data
-- Genre-based random book selection for homepage content
-- Carousel navigation controls and slide indicators
-- Responsive carousel layout adjustments
-- Automatic carousel rotation with pause-on-hover behaviour
-- Homepage genre grid with 24 curated genres linking to search results
-- Corrected marketplace buy links on the book detail page
-- Retry logic added to both `search_books()` and `get_random_books()` for consistent handling of temporary API failures
-- Randomised result offset for the homepage carousel so genres return varied books on each load
-- Search results pagination with sliding page-number window
-- Mobile menu overlay with click-away-to-close behaviour
-- Reliable background scroll lock while the mobile menu is open
+- Flask application factory architecture with Blueprint routing, environment configuration, SQLAlchemy, Flask-Migrate, and deployment setup.
+- Google Books API integration with search, book details, cover fallbacks, description sanitisation, marketplace links, timeout handling, and retry logic.
+- Responsive frontend design including authentication pages, navigation improvements, mobile menu handling, homepage carousel, genre browsing, and search pagination.
+- User authentication system using Flask-Bcrypt and Flask-Login with signup, login, logout, validation, and protected routes.
+- Interactive homepage features including dynamic quotes, genre-based book carousel, automatic rotation, navigation controls, and indicators.
+- Personal library CRUD functionality using the `User_Library` association table, including saving/removing books, duplicate prevention, saved book counts, account information, and timestamps.
 
 ---
 
 # Current Limitations
 
-1. Library and review functionality are not yet fully connected to persistent database workflows.
-2. Search autocomplete and filtering features are still planned.
-3. Google Books API thumbnails vary in aspect ratio and quality between books, which can produce inconsistent layout results (e.g. whitespace or cropping) despite CSS handling.
+1. Review functionality is not yet implemented.
+2. Search autocomplete and advanced filtering features are still planned.
+3. Google Books API thumbnails vary in aspect ratio and quality between books due to large dataset.
 
 ---
 
@@ -313,6 +281,7 @@ Stores user reviews:
 3. Used Flask Blueprints to keep routes organised.
 4. Initialised SQLAlchemy early to allow database development alongside application development.
 5. Separated API logic into `helpers.py` to keep routes clean.
+6. Used a `User_Library` association table instead of storing duplicate book data for each user.
 
 ---
 
@@ -404,6 +373,8 @@ Improvements added:
 - Added pagination controls to search results, including a sliding page-number window and a "Next" link gated on a full page of results.
 - Added a full-screen overlay behind the mobile menu, allowing users to close it by clicking outside.
 - Replaced the unreliable `overflow: hidden` scroll lock with a `position: fixed` approach that reliably prevents background scrolling on touch devices, restoring the user's scroll position on close.
+- Added personal library interface with saved book grid, empty state handling, saved book count, and user account information.
+- Added remove functionality from the library page with updated UI feedback.
 
 The frontend uses responsive CSS techniques to maintain usability across desktop, tablet, and mobile devices.
 
@@ -727,6 +698,43 @@ When authentication routes were moved from `app/routes.py` into `app/auth/routes
 
 ---
 
+## Challenge 16: Implementing User Library CRUD Functionality
+
+### Challenge
+
+After authentication was completed, the next step was allowing users to create personal book collections.
+
+The main challenge was designing the relationship between users and books. Storing full API data for every saved book would duplicate external Google Books information unnecessarily, while multiple users needed to be able to save the same book.
+
+### Solution
+
+A `User_Library` association table was created to represent the many-to-many relationship between users and books.
+
+The table uses a composite primary key:
+
+- `user_id`
+- `google_book_id`
+
+This prevents duplicate saves while allowing multiple users to save the same book.
+
+When a user saves a book:
+
+1. The book details are stored in the `Book` table.
+2. A relationship entry is created in `User_Library`.
+3. The library page retrieves saved books through this relationship.
+
+Removing a book only removes the `User_Library` relationship, preserving shared book data.
+
+Additional features added:
+- Saved book count display.
+- Username and account creation date display.
+- Book save timestamps.
+- Remove functionality from library and book detail pages.
+
+This reinforced the importance of separating entity data from relationship data.
+
+---
+
 # What Was Learned So Far
 
 - Large Git refactors often represent organised restructuring rather than logic changes; Flask application factories, environment variables, and separated helper functions all improve scalability, security, and maintainability over single-file setups.
@@ -740,14 +748,16 @@ When authentication routes were moved from `app/routes.py` into `app/auth/routes
 - `overflow: hidden` alone isn't a reliable scroll lock on touch devices; `position: fixed` with manually preserved/restored scroll position is more robust.
 - Mismatched or miscounted closing tags don't raise errors — they silently change element nesting, which can look like a CSS bug at first glance.
 - Blueprint endpoint naming and import order matter in modular Flask refactors; using `auth.*` endpoint names and controlled blueprint registration avoids circular import issues.
+- CRUD functionality requires careful separation between entity data and relationship data; association tables allow users to manage personal collections without duplicating shared external API information.
 
 ---
 
 # Next Milestones
 
-1. Connect User_Library functionality.
-2. Implement reviews and ratings.
+1. Implement reviews and ratings CRUD functionality.
+2. Add review display and rating aggregation on book detail pages.
 3. Add search improvements such as autocomplete and filtering.
+4. Improve deployment and production testing.
 
 ---
 
