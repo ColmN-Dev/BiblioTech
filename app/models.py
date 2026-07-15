@@ -49,6 +49,11 @@ class Review(db.Model):
     review_text = db.Column(db.Text)
     date_created = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
     
+    # Ensure that a user can only submit one review per book by adding a unique constraint on the combination of user_id and google_book_id
+    __table_args__ = (
+        db.UniqueConstraint('user_id', 'google_book_id', name='unique_user_book_review'),
+    )
+    
     # Define relationships to the User and Book models
     user = db.relationship('User', back_populates='reviews', lazy=True)
     book = db.relationship('Book', back_populates='reviews', lazy=True)
