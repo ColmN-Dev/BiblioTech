@@ -26,13 +26,13 @@
 
             {% if saved %}
                 <form action="{{ url_for('routes.remove_from_library', book_id=book.id) }}" method="POST">
-                    <button type="submit" class="btn">
+                    <button type="submit" class="btn" id="save-btn">
                         Remove from Library
                     </button>
                 </form>
             {% else %}
                 <form action="{{ url_for('routes.add_to_library', book_id=book.id) }}" method="POST">
-                    <button type="submit" class="btn">
+                    <button type="submit" class="btn" id="save-btn">
                         Add to Library
                     </button>
                 </form>
