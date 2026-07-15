@@ -139,8 +139,10 @@ def add_to_library(book_id):
     if not book:
         api_book = get_book_details(volume_id=book_id)
     
-    # If the book details were successfully fetched from the API, create a new Book entry in the database
-    if api_book:
+        if not api_book:
+            flash("Unable to retrieve book details.", "error")
+            return redirect(request.referrer or url_for("routes.your_library"))
+        
         volume_info = api_book.get("volumeInfo", {})
         
         # Safely extract and clean HTML tags from book description
@@ -156,8 +158,11 @@ def add_to_library(book_id):
     # Check if the book is already in the user's library
     existing = User_Library.query.filter_by(user_id=current_user.id, google_book_id=book_id).first()
     
+    if existing:
+        flash("Book is already in your library.", "error")
+    
     # If the book is not already in the library, add it
-    if not existing:
+    else:
         saved_book = User_Library(user_id=current_user.id, google_book_id=book_id)
         
         db.session.add(saved_book)
