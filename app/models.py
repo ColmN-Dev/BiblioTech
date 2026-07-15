@@ -11,7 +11,7 @@ class User(db.Model, UserMixin):
     date_created = db.Column(db.DateTime, default=lambda: datetime.datetime.now(datetime.timezone.utc))
     
     # Define relationships to the User_Library and Review models
-    library = db.relationship('User_Library', back_populates='user', lazy=True)
+    library = db.relationship('User_Library', back_populates='user', cascade='all, delete-orphan', lazy=True)
     reviews = db.relationship('Review', back_populates='user', lazy=True)
 
 # Define the User_Library model with fields for user_id, book_id, and date created
@@ -43,7 +43,7 @@ class Book(db.Model):
 class Review(db.Model):
     __tablename__ = 'reviews'
     review_id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=True) # Make user_id nullable to allow for anonymous reviews
     google_book_id = db.Column(db.String(120), db.ForeignKey('books.google_book_id'), nullable=False)
     rating = db.Column(db.Integer, nullable=False)
     review_text = db.Column(db.Text)
