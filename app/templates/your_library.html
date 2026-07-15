@@ -23,8 +23,8 @@
 
 {% if books %}
     <div class="results-grid library-grid">
-        <div class="book-card-wrapper">
         {% for entry in library_entries %}
+        <div class="book-card-wrapper">
         <a href="{{ url_for('routes.book_detail', book_id=entry.book.google_book_id) }}">
             <div class="book-card">
                 <img 
@@ -36,13 +36,13 @@
             </div>
         </a>
 
-        <form action="{{ url_for('routes.remove_from_library', book_id=entry.book.google_book_id) }}" method="POST" class="remove-form">
-            <button type="submit">
-                Remove from Library
-            </button>
-        </form>
+            <form action="{{ url_for('routes.remove_from_library', book_id=entry.book.google_book_id) }}" method="POST" class="remove-form">
+                <button type="submit">
+                    Remove from Library
+                </button>
+            </form>
         </div>
-{% endfor %}
+        {% endfor %}
     </div>
 {% else %}
     <div class="empty-state">
