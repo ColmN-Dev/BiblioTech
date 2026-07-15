@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, redirect, request, url_for, flash
-from flask_login import current_user, login_required
+from flask_login import current_user, login_required, logout_user
 from app.helpers import search_books, get_book_details, get_random_books, FEATURED_GENRES
 import re
-from app import db
-from app.models import Review, User_Library, Book
+from app import db, bcrypt
+from app.models import Review, User, User_Library, Book
 
 routes = Blueprint("routes", __name__)
 
@@ -221,3 +221,23 @@ def your_library():
     total = User_Library.query.filter_by(user_id=current_user.id).count()
 
     return render_template("your_library.html", books=books, library_entries=library_entries, total=total)
+
+@routes.route("/library/delete", methods=["POST"])
+@login_required
+def delete_user():
+    
+    # Get the password from the form submission and verify it against the current user's password hash
+    password = (request.form.get("password") or "").strip()
+    
+    if not bcrypt.check_password_hash(current_user.password_hash, password):
+        flash("Incorrect password. Please try again.", "error")
+        return redirect(url_for("routes.your_library"))
+    
+    # Delete the user account and log the user out
+    user = User.query.get(current_user.id)
+    logout_user()
+    db.session.delete(user)
+    db.session.commit()
+    flash("Your account has been deleted.", "success")
+    return redirect(url_for("routes.index"))
+    
