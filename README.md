@@ -2,7 +2,7 @@
 
 BiblioTech is a Flask-based book discovery application. The project has been refactored into a Flask application factory + package structure and uses PostgreSQL through Flask-SQLAlchemy.
 
-The application uses the Google Books API to allow users to search for books, view book details, and explore available book information.
+The application uses the Google Books API to allow users to search for books, view book details, save books to a personal library, and leave reviews.
 
 ---
 
@@ -35,8 +35,9 @@ BiblioTech currently includes:
 - Personal library CRUD functionality (save, view, and remove books)
 - Responsive homepage with dynamic quotes, genre browsing, and Google Books carousel
 - Mobile-friendly responsive interface with improved navigation
+- User review system with 1-5 star ratings, review editing, and deletion
 
-Future development will focus on user reviews, ratings, and enhanced search functionality.
+Future development will focus on enhanced search functionality and additional account features.
 
 ---
 
@@ -48,6 +49,15 @@ Future development will focus on user reviews, ratings, and enhanced search func
 - Automatic carousel rotation with navigation controls
 - Fallback handling for missing book covers
 - Genre grid linking directly to search results
+
+---
+
+## Review Features
+
+- Authenticated users can leave a 1-5 star rating and optional written review.
+- Users can edit or delete their own reviews.
+- Reviews are displayed on book detail pages for all visitors.
+- Database constraints prevent duplicate reviews from the same user on the same book.
 
 ---
 
@@ -151,6 +161,8 @@ Template links and redirects for authentication use blueprint-qualified endpoint
 | `/` | Homepage |
 | `/search-results` | Search books |
 | `/book/<book_id>` | Book details |
+| `/book/<book_id>/review` | Create or update review |
+| `/book/<book_id>/review/delete` | Delete review |
 | `/library` | Personal library |
 | `/about` | About page |
 | `/auth/login` | Login |
@@ -172,6 +184,10 @@ Template links and redirects for authentication use blueprint-qualified endpoint
 
 ![Homepage](app/static/images/Homepage.png)
 
-### Your Library - Light Mode
+### Your Library
 
 ![Your Library](app/static/images/Your_Library.png)
+
+### Book Detail Reviews
+
+![Book Detail Reviews](app/static/images/Reviews.png)

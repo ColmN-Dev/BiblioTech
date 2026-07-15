@@ -23,21 +23,22 @@
 6. Database and Models  
 7. Planned Features vs Current State  
 8. Current Limitations  
-9. Key Design Decisions  
+9. Key Design Decisions
 10. Google Books API Integration  
 11. API Reliability Improvements  
-12. Frontend Improvements  
-13. Design Pattern Note: Facade  
-14. Challenges Faced and Solutions  
-15. What Was Learned So Far  
-16. Next Milestones  
-17. References  
+12. Review System
+13. Frontend Improvements  
+14. Design Pattern Note: Facade  
+15. Challenges Faced and Solutions  
+16. What Was Learned So Far  
+17. Next Milestones  
+18. References  
 
 ---
 
 ## Overview
 
-BiblioTech is a Flask-based book discovery web application designed to allow users to search and explore books, with future support for user accounts, reviews, and personal library features.
+BiblioTech is a Flask-based book discovery web application designed to allow users to search and explore books, create accounts, manage a personal library, and leave reviews on books.
 
 The application uses the Google Books API as its external data source and has been restructured using a scalable Flask application factory architecture.
 
@@ -132,7 +133,7 @@ Routing is split by responsibility:
 |---|---|
 | `/` | Homepage |
 | `/search-results` | Search results |
-| `/book/<book_id>` | Book details |
+| `/book/<book_id>` | Book details   |
 | `/library` | User library (login required) |
 | `/about` | About page |
 
@@ -252,8 +253,7 @@ Stores user reviews:
 
 - Search autocomplete
 - Genre filtering
-- Reviews and ratings
-- Account disable feature
+- Account deletion
 
 ## Completed Features
 
@@ -263,12 +263,13 @@ Stores user reviews:
 - User authentication system using Flask-Bcrypt and Flask-Login with signup, login, logout, validation, and protected routes.
 - Interactive homepage features including dynamic quotes, genre-based book carousel, automatic rotation, navigation controls, and indicators.
 - Personal library CRUD functionality using the `User_Library` association table, including saving/removing books, duplicate prevention, saved book counts, account information, and timestamps.
+- Review system allowing authenticated users to create, update, and delete reviews with 1-5 star ratings, review text, ownership checks, and database constraints.
 
 ---
 
 # Current Limitations
 
-1. Review functionality is not yet implemented.
+1. Review aggregation features such as average user rating calculations are not currently implemented, as they were outside the current project scope.
 2. Search autocomplete and advanced filtering features are still planned.
 3. Google Books API thumbnails vary in aspect ratio and quality between books due to large dataset.
 
@@ -349,6 +350,57 @@ Improvements added:
 - Fallback handling for missing book information
 
 This prevents temporary API issues from incorrectly displaying "no results found".
+
+---
+
+## Review System
+
+### Overview
+
+BiblioTech allows authenticated users to leave ratings and reviews on books. Users can create, update, and delete their own reviews, while all users (including guests) can view existing reviews.
+
+### Database Design
+
+Reviews are stored in the `reviews` table.
+
+Fields:
+- `review_id` - Primary key
+- `user_id` - Foreign key linking the review to a user
+- `google_book_id` - Foreign key linking the review to a book
+- `rating` - Integer value between 1 and 5
+- `review_text` - Optional written review
+- `date_created` - Timestamp showing when the review was created
+
+A unique constraint is applied to `user_id` and `google_book_id` to ensure each user can only submit one review per book.
+
+---
+
+### Review Functionality
+
+Users can:
+
+- Submit a rating and optional review text.
+- Update their existing review.
+- Delete their own review.
+- View reviews submitted by other users.
+
+Guests can view reviews but must log in to submit one.
+
+### Security and Validation
+
+Review actions require authentication using Flask-Login.
+
+The system verifies ownership by checking the logged-in user's ID before allowing updates or deletion.
+
+Ratings are validated server-side to ensure they are between 1 and 5.
+
+### User Interface
+
+The review interface uses:
+- CSS star rating selector.
+- Responsive review cards.
+- SVG icons for review actions.
+- Styled review sections matching the BiblioTech theme.
 
 ---
 
@@ -735,6 +787,30 @@ This reinforced the importance of separating entity data from relationship data.
 
 ---
 
+## Challenge 17: Implementing Review Functionality
+
+### Challenge
+
+Adding reviews required designing how user-generated content would relate to existing users and books. The system needed to allow multiple users to review the same book while preventing individual users from submitting duplicate reviews for the same book.
+
+Additional considerations included ensuring users could only modify or delete their own reviews.
+
+### Solution
+
+A `Review` model was created with relationships to both the `User` and `Book` models.
+
+A unique constraint was added to the combination of `user_id` and `google_book_id` to ensure each user can only have one review per book.
+
+Flask-Login authentication was used to protect review actions, and ownership checks were implemented before allowing users to update or delete reviews.
+
+The review system now supports:
+- creating reviews
+- updating existing reviews
+- deleting reviews
+- displaying reviews to all users, including guests
+
+---
+
 # What Was Learned So Far
 
 - Large Git refactors often represent organised restructuring rather than logic changes; Flask application factories, environment variables, and separated helper functions all improve scalability, security, and maintainability over single-file setups.
@@ -754,8 +830,7 @@ This reinforced the importance of separating entity data from relationship data.
 
 # Next Milestones
 
-1. Implement reviews and ratings CRUD functionality.
-2. Add review display and rating aggregation on book detail pages.
+1. Implement account management features such as account deletion.
 3. Add search improvements such as autocomplete and filtering.
 4. Improve deployment and production testing.
 
