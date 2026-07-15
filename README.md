@@ -2,7 +2,7 @@
 
 BiblioTech is a Flask-based book discovery application. The project has been refactored into a Flask application factory + package structure and uses PostgreSQL through Flask-SQLAlchemy.
 
-The application uses the Google Books API to allow users to search for books, view book details, save books to a personal library, and leave reviews.
+The application uses the Google Books API to allow users to search for books, view book details, save books to a personal library, leave reviews, and manage their account.
 
 ---
 
@@ -36,8 +36,10 @@ BiblioTech currently includes:
 - Responsive homepage with dynamic quotes, genre browsing, and Google Books carousel
 - Mobile-friendly responsive interface with improved navigation
 - User review system with 1-5 star ratings, review editing, and deletion
+- Account deletion with password confirmation and data relationship handling
 
-Future development will focus on enhanced search functionality and additional account features.
+
+Future development will focus on enhanced search functionality and further improvements to account management.
 
 ---
 
@@ -58,6 +60,7 @@ Future development will focus on enhanced search functionality and additional ac
 - Users can edit or delete their own reviews.
 - Reviews are displayed on book detail pages for all visitors.
 - Database constraints prevent duplicate reviews from the same user on the same book.
+- Reviews are preserved after account deletion and displayed as belonging to a deleted user.
 
 ---
 
@@ -164,6 +167,7 @@ Template links and redirects for authentication use blueprint-qualified endpoint
 | `/book/<book_id>/review` | Create or update review |
 | `/book/<book_id>/review/delete` | Delete review |
 | `/library` | Personal library |
+| `/library/delete` | Delete user account |
 | `/about` | About page |
 | `/auth/login` | Login |
 | `/auth/signup` | Register |

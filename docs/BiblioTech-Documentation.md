@@ -30,9 +30,10 @@
 13. Frontend Improvements  
 14. Design Pattern Note: Facade  
 15. Challenges Faced and Solutions  
-16. What Was Learned So Far  
-17. Next Milestones  
-18. References  
+16. What Was Learned So Far
+17. Account Management and Deletion System
+18. Next Milestones  
+19. References  
 
 ---
 
@@ -245,6 +246,8 @@ Stores user reviews:
 - review_text
 - date_created
 
+The `user_id` field allows NULL values so reviews can remain after an account is deleted. When a user account is removed, the review content is preserved and displayed as belonging to a deleted user rather than being permanently removed.
+
 ---
 
 # Planned Features vs Current State
@@ -253,7 +256,7 @@ Stores user reviews:
 
 - Search autocomplete
 - Genre filtering
-- Account deletion
+- Book recommendation system
 
 ## Completed Features
 
@@ -264,6 +267,7 @@ Stores user reviews:
 - Interactive homepage features including dynamic quotes, genre-based book carousel, automatic rotation, navigation controls, and indicators.
 - Personal library CRUD functionality using the `User_Library` association table, including saving/removing books, duplicate prevention, saved book counts, account information, and timestamps.
 - Review system allowing authenticated users to create, update, and delete reviews with 1-5 star ratings, review text, ownership checks, and database constraints.
+- Account deletion system with password confirmation, database relationship handling, cascade deletion for saved books, and preservation of reviews from deleted accounts.
 
 ---
 
@@ -394,6 +398,8 @@ The system verifies ownership by checking the logged-in user's ID before allowin
 
 Ratings are validated server-side to ensure they are between 1 and 5.
 
+Reviews remain available after account deletion through nullable user relationships. See User Account Deletion Relationships for the database behaviour.
+
 ### User Interface
 
 The review interface uses:
@@ -427,6 +433,7 @@ Improvements added:
 - Replaced the unreliable `overflow: hidden` scroll lock with a `position: fixed` approach that reliably prevents background scrolling on touch devices, restoring the user's scroll position on close.
 - Added personal library interface with saved book grid, empty state handling, saved book count, and user account information.
 - Added remove functionality from the library page with updated UI feedback.
+- Added account deletion confirmation modal with password verification and safe cancellation behaviour.
 
 The frontend uses responsive CSS techniques to maintain usability across desktop, tablet, and mobile devices.
 
@@ -811,28 +818,72 @@ The review system now supports:
 
 ---
 
+## Challenge 18: Implementing Account Deletion
+
+### Challenge
+
+Deleting user accounts required deciding how related data should behave. Removing everything would unnecessarily delete useful user-generated content such as reviews, while keeping personal data could leave invalid relationships.
+
+Additional frontend challenges included implementing a safe confirmation flow and ensuring the modal behaved correctly.
+
+### Solution
+
+Account deletion was implemented with password confirmation before permanently removing the account.
+
+Database decisions:
+
+- Saved books are deleted automatically using cascade deletion because they represent personal user collections.
+- Reviews remain after account deletion.
+- Review `user_id` was changed to allow NULL values.
+- Deleted reviews display "Deleted User".
+
+Frontend improvements included:
+
+- Confirmation modal before deletion.
+- Password input requirement.
+- Disabled delete button until a password is entered.
+- Click-outside modal closing.
+- Password visibility toggle support.
+
+Database migrations were required after changing model constraints to keep the database schema synchronized with SQLAlchemy models.
+
 # What Was Learned So Far
 
-- Large Git refactors often represent organised restructuring rather than logic changes; Flask application factories, environment variables, and separated helper functions all improve scalability, security, and maintainability over single-file setups.
-- Database relationships and migrations require careful planning; Flask-Migrate allows schema changes without manually recreating tables.
-- External API data cannot be trusted at face value: responses need validation, sanitisation (e.g. stripping HTML markup), and defensive access patterns (`.get()` with defaults) since not every result includes every expected field.
-- API failures and empty results should be handled separately, with retry logic (correctly scoped — a counter placed outside its loop can silently break the retry limit) improving reliability against temporary failures. Rotate API keys immediately if accidentally exposed.
-- Getting genuinely varied results from an API often requires randomising more than the query itself (e.g. also randomising the result offset).
-- Constructing third-party URLs requires the correct search path and query parameters, not just a domain and identifier.
-- Frontend and responsive testing must happen with real API data, not placeholders, since layout and image-quality issues often only surface once live content is displayed.
-- UI state (active indicators, scroll position, menu visibility) doesn't sync automatically — it must be explicitly managed, and consolidating that logic into a single function avoids triggers falling out of sync with each other.
-- `overflow: hidden` alone isn't a reliable scroll lock on touch devices; `position: fixed` with manually preserved/restored scroll position is more robust.
-- Mismatched or miscounted closing tags don't raise errors — they silently change element nesting, which can look like a CSS bug at first glance.
-- Blueprint endpoint naming and import order matter in modular Flask refactors; using `auth.*` endpoint names and controlled blueprint registration avoids circular import issues.
-- CRUD functionality requires careful separation between entity data and relationship data; association tables allow users to manage personal collections without duplicating shared external API information.
+- Large Git refactors are often organisational improvements rather than logic changes; Flask application factories, environment variables, and separated helper functions improve scalability, security, and maintainability.
+- Database relationships and migrations require careful planning; Flask-Migrate allows schema changes without manually recreating databases.
+- External API data requires defensive handling through validation, sanitisation, and safe access patterns (`.get()` defaults), as responses may be incomplete or inconsistent.
+- API failures and empty results should be handled separately. Retry logic improves reliability against temporary failures, while exposed API keys should be rotated immediately.
+- Reliable API integration often requires more than changing queries; result offsets, URL construction, and third-party search parameters must be handled correctly.
+- Frontend testing should use real API data, as layout, image quality, and responsive issues often only appear with live content.
+- UI state must be managed explicitly. Centralising logic for components such as menus, carousels, and modals prevents inconsistent behaviour.
+- Responsive design issues can require solutions beyond simple CSS changes; for example, `position: fixed` with scroll restoration provides a more reliable mobile scroll lock than `overflow: hidden`.
+- Small HTML structure errors, such as incorrect nesting or closing tags, can silently create unexpected CSS behaviour.
+- Flask Blueprints require consistent endpoint naming and import order to maintain clean routing and avoid circular imports.
+- CRUD systems require separating entity data from relationship data; association tables allow users to manage personal collections without duplicating shared information.
+- Account deletion requires careful data lifecycle decisions. Personal relationship data such as saved books can be removed through cascade behaviour, while user-generated content such as reviews may need to remain with personal identifiers removed.
+
+---
+
+## User Account Deletion Relationships
+
+Account deletion was designed around preserving meaningful user-generated content while removing personal account data.
+
+Deletion behaviour:
+
+- User library entries are deleted using cascade behaviour because saved books only exist as part of a user's personal collection.
+- Reviews are preserved after account deletion.
+- Review ownership is removed by setting `user_id` to NULL.
+- Deleted reviews display as "Deleted User" instead of attempting to access a missing account.
+
+This avoids unnecessary data loss while preventing broken relationships.
 
 ---
 
 # Next Milestones
 
-1. Implement account management features such as account deletion.
-3. Add search improvements such as autocomplete and filtering.
-4. Improve deployment and production testing.
+1. Implement book recommendation features using genre-based matching.
+2. Add search improvements such as autocomplete and filtering.
+3. Improve deployment and production testing.
 
 ---
 
@@ -894,3 +945,6 @@ https://dev.to/freddiemazzilli/flask-sqlalchemy-relationships-exploring-relation
 
 - Flask-Login Documentation: 
 https://flask-login.readthedocs.io/en/latest/
+
+- Flask-SQLAlchemy Cascades:
+https://docs.sqlalchemy.org/en/21/orm/cascades.html
