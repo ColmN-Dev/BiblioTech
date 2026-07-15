@@ -3,7 +3,7 @@ from flask_login import current_user, login_required
 from app.helpers import search_books, get_book_details, get_random_books, FEATURED_GENRES
 import re
 from app import db
-from app.models import User_Library, Book
+from app.models import Review, User_Library, Book
 
 routes = Blueprint("routes", __name__)
 
@@ -63,10 +63,63 @@ def book_detail(book_id):
     # Set library button state for logged-in users
     if current_user.is_authenticated:
         saved = User_Library.query.filter_by(user_id=current_user.id, google_book_id=book_id).first() is not None
-        
     
+    # Retrieve reviews for the book, ordered by date created in descending order
+    reviews = Review.query.filter_by(google_book_id=book_id).order_by(Review.date_created.desc()).all()
+    user_review = None
     
-    return render_template("book_detail.html", book=book, saved=saved, book_id=book_id)
+    # If the user is logged in, check if they have already submitted a review for this book
+    if current_user.is_authenticated:
+        user_review = Review.query.filter_by(user_id=current_user.id, google_book_id=book_id).first()
+    
+    return render_template("book_detail.html", book=book, saved=saved, book_id=book_id, reviews=reviews, user_review=user_review)
+
+@routes.route("/book/<book_id>/review", methods=["POST"])
+@login_required
+def create_or_update_review(book_id):
+    
+    # Get the rating and review text from the form submission
+    rating = request.form.get("rating", type=int)
+    review_text = request.form.get("review_text", "").strip() or None
+    
+    # Validate the rating to ensure it is between 1 and 5
+    if not rating or rating < 1 or rating > 5:
+        flash("Please provide a valid rating between 1 and 5.", "error")
+        return redirect(url_for("routes.book_detail", book_id=book_id))
+    
+    # Check if the user has already submitted a review for this book
+    existing = Review.query.filter_by(user_id=current_user.id, google_book_id=book_id).first()
+    
+    if existing:
+        # Update the existing review
+        existing.rating = rating
+        existing.review_text = review_text
+        flash("Your review has been updated.", "success")
+    else:
+        # Create a new review
+        new_review = Review(user_id=current_user.id, google_book_id=book_id, rating=rating, review_text=review_text)
+        db.session.add(new_review)
+        flash("Your review has been submitted.", "success")
+    
+    db.session.commit()
+    return redirect(url_for("routes.book_detail", book_id=book_id))
+
+@routes.route("/book/<book_id>/review/delete", methods=["POST"])
+@login_required
+def delete_review(book_id):
+    
+    # Find the review submitted by the current user for the specified book
+    review = Review.query.filter_by(user_id=current_user.id, google_book_id=book_id).first()
+    
+    if review:
+        # If the review exists, delete it from the database
+        db.session.delete(review)
+        db.session.commit()
+        flash("Your review has been deleted.", "success")
+    else:
+        flash("No review found to delete.", "error")
+    
+    return redirect(url_for("routes.book_detail", book_id=book_id))
 
 
 # ABOUT
