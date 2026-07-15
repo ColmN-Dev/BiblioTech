@@ -50,4 +50,45 @@
     </div>
 {% endif %}
 
+
+<div class="danger-zone">
+    <h2>Danger Zone</h2>
+    <div class="highlighted-text">
+        <p>Deleting your account will remove all your saved books and personal data. Posted reviews will not be deleted.</p>
+    <p>Deleting your account is permanent and cannot be undone.</p>
+    <button type="button" id="delete-account" aria-haspopup="dialog" aria-controls="delete-modal" title="Are you sure?">
+        Delete Account
+    </button>
+    </div>
+</div>
+
+<div id="delete-modal" class="modal-overlay" hidden>
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+        <h2 id="delete-modal-title">Delete your account?</h2>
+        <p class="highlighted-text">This action cannot be undone. Enter your password to confirm.</p>
+
+        <form method="POST" action="{{ url_for('routes.delete_user') }}">
+        <div class="form-group">
+            <label for="delete-password">Password</label>
+            <div class="password-field">
+                <input type="password" id="delete-password" name="password" placeholder="Enter password" required>
+
+                <button 
+                    type="button"
+                    id="delete-toggle-password"
+                    class="eye-icon open"
+                    aria-label="Show password"
+                    aria-pressed="false">
+                </button>
+            </div>
+        </div>
+
+            <div class="modal-actions">
+                <button type="button" class="btn" id="cancel-delete">Cancel</button>
+                <button type="submit" id="confirm-delete" title="This cannot be undone" disabled>Delete Account</button>
+            </div>
+        </form>
+    </div>
+</div>
+
 {% endblock %}

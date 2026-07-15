@@ -271,7 +271,7 @@
                 <div class="review-item">
 
                     <div class="review-header">
-                        <strong>{{ review.user.username }}</strong>
+                        <strong>{{ review.user.username if review.user else "Deleted User" }}</strong>
 
                         <div class="review-stars"
                                     title="Rating: {{ review.rating }}/5">
