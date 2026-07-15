@@ -87,6 +87,28 @@ def create_or_update_review(book_id):
         flash("Please provide a valid rating between 1 and 5.", "error")
         return redirect(url_for("routes.book_detail", book_id=book_id))
     
+    # Ensure the book exists in the database before creating a review
+    book = Book.query.filter_by(google_book_id=book_id).first()
+
+    if not book:
+        api_book = get_book_details(volume_id=book_id)
+
+        if not api_book:
+            flash("Unable to retrieve book details.", "error")
+            return redirect(url_for("routes.book_detail", book_id=book_id))
+
+        volume_info = api_book.get("volumeInfo", {})
+
+        book = Book(
+            google_book_id=book_id,
+            title=volume_info.get("title", "Unknown Title"),
+            authors=", ".join(volume_info.get("authors", [])),
+            cover_image=volume_info.get("imageLinks", {}).get("thumbnail", "")
+        )
+
+        db.session.add(book)
+        db.session.commit()
+    
     # Check if the user has already submitted a review for this book
     existing = Review.query.filter_by(user_id=current_user.id, google_book_id=book_id).first()
     
