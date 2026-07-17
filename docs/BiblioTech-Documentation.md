@@ -1,6 +1,6 @@
 # BiblioTech Documentation
 
-**Last updated:** July 13, 2026
+**Last updated:** July 17, 2026
 
 ---
 
@@ -273,20 +273,20 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 
 # Current Limitations
 
-1. Review aggregation features such as average user rating calculations are not currently implemented, as they were outside the current project scope.
-2. Search autocomplete and advanced filtering features are still planned.
-3. Google Books API thumbnails vary in aspect ratio and quality between books due to large dataset.
+1. No average rating calculation — outside scope.
+2. Autocomplete/filtering — still planned.
+3. Book cover quality/aspect ratio varies across the Google Books dataset.
 
 ---
 
 # Key Design Decisions
 
-1. Adopted the Flask application factory pattern early to avoid future restructuring.
-2. Used environment variables to separate sensitive configuration from application code.
-3. Used Flask Blueprints to keep routes organised.
-4. Initialised SQLAlchemy early to allow database development alongside application development.
-5. Separated API logic into `helpers.py` to keep routes clean.
-6. Used a `User_Library` association table instead of storing duplicate book data for each user.
+1. Application factory pattern adopted early to avoid future restructuring.
+2. Sensitive config kept in environment variables, not code.
+3. Blueprints used to keep routing organised.
+4. SQLAlchemy initialised early to develop the database alongside the app.
+5. API logic separated into `helpers.py` to keep routes clean.
+6. `User_Library` association table used instead of duplicating book data per user.
 
 ---
 
@@ -336,24 +336,6 @@ Used by the book detail page.
 ### `get_random_books(count)`
 
 Retrieves random books for homepage content, using genre-based subject searches.
-
----
-
-# API Reliability Improvements
-
-After integrating the Google Books API into the frontend, several reliability issues were discovered.
-
-Improvements added:
-
-- Centralised API requests
-- Timeout handling
-- Retry logic for temporary failures
-- Differentiation between:
-- API failure (`None`)
-- Successful search with no results (`[]`)
-- Fallback handling for missing book information
-
-This prevents temporary API issues from incorrectly displaying "no results found".
 
 ---
 
@@ -847,20 +829,46 @@ Frontend improvements included:
 
 Database migrations were required after changing model constraints to keep the database schema synchronized with SQLAlchemy models.
 
+---
+
+## Challenge 19: Google Books API Daily Quota Exhaustion from Nested Retry Logic
+
+### Challenge
+
+Search, carousel, and genre grid intermittently failed to load throughout a single day of testing, initially suspected to be a frontend race condition between image sources (Google Books vs Open Library thumbnails) given how the failures jumped inconsistently between different parts of the site.
+
+Added logging to `fetch_json()` to capture actual error responses rather than assuming the cause. This revealed genuine `503 Service Unavailable` and `429 Too Many Requests` responses from Google, not a frontend timing issue.
+
+Investigation showed `get_random_books()` and `fetch_json()` each had independent retry loops, meaning a single homepage load could trigger up to 25 real API calls in the worst case (5 genre attempts × 5 retries each). Checking Google Cloud Console confirmed the daily quota was at 99.7% (997/1,000 requests) from repeated dev-session testing.
+
+### Solution
+
+Added a simple in-memory TTL cache to `fetch_json()`, storing responses as `(value, timestamp)` pairs in a dictionary and checking against a 10-minute expiry before making a fresh request, so repeated homepage/genre loads reuse recent data instead of re-hitting the API.
+
+Reduced `fetch_json()`'s internal retry attempts from 5 to 2, cutting worst-case nested call volume significantly.
+
+Added a check to stop retrying immediately on a `429` response rather than continuing to hammer an already rate-limited endpoint, since retrying a hard quota limit only makes it worse.
+
+The caching pattern was adapted from a standard Python TTL cache implementation (dict + timestamp checked on read) rather than adding a third-party dependency, consistent with the project's existing preference for simple, stateless functions in `helpers.py` over unnecessary abstraction.
+
+*Status: fix implemented but not yet verified end-to-end, as daily quota was exhausted before it could be tested against a live rate-limit scenario. To confirm once quota resets.*
+
+---
+
 # What Was Learned So Far
 
-- Large Git refactors are often organisational improvements rather than logic changes; Flask application factories, environment variables, and separated helper functions improve scalability, security, and maintainability.
-- Database relationships and migrations require careful planning; Flask-Migrate allows schema changes without manually recreating databases.
-- External API data requires defensive handling through validation, sanitisation, and safe access patterns (`.get()` defaults), as responses may be incomplete or inconsistent.
-- API failures and empty results should be handled separately. Retry logic improves reliability against temporary failures, while exposed API keys should be rotated immediately.
-- Reliable API integration often requires more than changing queries; result offsets, URL construction, and third-party search parameters must be handled correctly.
-- Frontend testing should use real API data, as layout, image quality, and responsive issues often only appear with live content.
-- UI state must be managed explicitly. Centralising logic for components such as menus, carousels, and modals prevents inconsistent behaviour.
-- Responsive design issues can require solutions beyond simple CSS changes; for example, `position: fixed` with scroll restoration provides a more reliable mobile scroll lock than `overflow: hidden`.
-- Small HTML structure errors, such as incorrect nesting or closing tags, can silently create unexpected CSS behaviour.
-- Flask Blueprints require consistent endpoint naming and import order to maintain clean routing and avoid circular imports.
-- CRUD systems require separating entity data from relationship data; association tables allow users to manage personal collections without duplicating shared information.
-- Account deletion requires careful data lifecycle decisions. Personal relationship data such as saved books can be removed through cascade behaviour, while user-generated content such as reviews may need to remain with personal identifiers removed.
+- Refactors (application factories, env variables, separated helpers) are usually organisational improvements, not logic changes — they pay off in scalability and maintainability.
+- Flask-Migrate handles schema changes safely without recreating the database, but migrations must be planned around relationships.
+- External API data needs defensive handling: `.get()` defaults, validation, and sanitisation, since responses are often incomplete.
+- API failures (`None`) and empty results (`[]`) must be handled separately; retry logic covers temporary failures, and nested retry loops can multiply request volume fast enough to exhaust quota. Exposed keys should be rotated immediately.
+- Reliable integration is more than the query itself — offsets, URL construction, and third-party parameters all need correct handling.
+- Frontend issues (layout, image quality, responsiveness) often only surface with real API data, not placeholders.
+- UI state (menus, carousels, modals) needs centralised logic to stay consistent.
+- Some responsive issues need more than CSS — e.g. `position: fixed` with scroll restoration beats `overflow: hidden` for mobile scroll locking.
+- Small HTML nesting errors can silently break CSS behaviour.
+- Blueprints need consistent endpoint naming and careful import order to avoid circular imports.
+- CRUD design should separate entity data from relationship data via association tables, avoiding duplication.
+- Account deletion is a data lifecycle decision: cascade personal relationship data, but preserve user-generated content with identifiers removed where meaningful.
 
 ---
 
@@ -948,3 +956,6 @@ https://flask-login.readthedocs.io/en/latest/
 
 - Flask-SQLAlchemy Cascades:
 https://docs.sqlalchemy.org/en/21/orm/cascades.html
+
+- Custom Python Cache Implementation:
+https://medium.com/@saleem.latif.ee/implementing-a-custom-cache-in-python-68c39ece8a8

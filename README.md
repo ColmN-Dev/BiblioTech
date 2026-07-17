@@ -1,8 +1,14 @@
 # BiblioTech
 
-BiblioTech is a Flask-based book discovery application. The project has been refactored into a Flask application factory + package structure and uses PostgreSQL through Flask-SQLAlchemy.
+BiblioTech is a full-stack Flask web application that allows users to discover books using the Google Books API, build a personal library, write reviews, and manage their account.
 
-The application uses the Google Books API to allow users to search for books, view book details, save books to a personal library, leave reviews, and manage their account.
+The application uses PostgreSQL for persistent storage and follows the Flask application factory pattern with Blueprints for maintainability and scalability.
+
+---
+
+## Application Link
+
+Live Site: https://bibliotech-ifum.onrender.com
 
 ---
 
@@ -22,24 +28,49 @@ The application uses the Google Books API to allow users to search for books, vi
 
 ---
 
+## Key Skills Demonstrated
+
+- Flask application factory pattern
+- Blueprints and modular routing
+- REST API integration
+- PostgreSQL relational database design
+- SQLAlchemy ORM
+- Database migrations with Flask-Migrate
+- Authentication and session management
+- CRUD operations
+- Password hashing with Flask-Bcrypt
+- Responsive frontend development
+
+---
+
 ## Features
 
-BiblioTech currently includes:
+Authentication
+- Register
+- Login
+- Logout
+- Secure password hashing
 
-- Flask application factory architecture with Blueprints
-- PostgreSQL integration using Flask-SQLAlchemy and Flask-Migrate
-- Google Books API integration with timeout handling, retries, and fallback behaviour
-- Book search with pagination
-- Individual book detail pages
-- User authentication with Flask-Login and Flask-Bcrypt
-- Personal library CRUD functionality (save, view, and remove books)
-- Responsive homepage with dynamic quotes, genre browsing, and Google Books carousel
-- Mobile-friendly responsive interface with improved navigation
-- User review system with 1-5 star ratings, review editing, and deletion
-- Account deletion with password confirmation and data relationship handling
+Book Discovery
+- Search
+- Pagination
+- Book details
+- Genre-based recommendations
+
+Personal Library
+- Save books
+- Remove books
+
+Reviews
+- Ratings
+- Edit
+- Delete
+
+Account
+- Delete account
 
 
-Future development will focus on enhanced search functionality and further improvements to account management.
+Future development will focus on search autocomplete, along with continued API reliability improvements for recommendations.
 
 ---
 
@@ -61,6 +92,18 @@ Future development will focus on enhanced search functionality and further impro
 - Reviews are displayed on book detail pages for all visitors.
 - Database constraints prevent duplicate reviews from the same user on the same book.
 - Reviews are preserved after account deletion and displayed as belonging to a deleted user.
+
+---
+
+## Architecture
+
+The project follows the Flask application factory pattern.
+
+- Blueprints separate authentication and main application routes.
+- SQLAlchemy manages database models.
+- Helper functions encapsulate Google Books API interactions.
+- Flask-Migrate manages schema migrations.
+- Flask-Login handles authentication.
 
 ---
 
