@@ -313,8 +313,8 @@ body.menu-open {
     top: 0;
     right: -280px;
     width: 280px;
-    height: 100vh;
-    max-height: 100vh;
+    height: 100dvh;
+    max-height: 100dvh;
 
     background: rgba(43, 43, 43, 0.95);
     opacity: 0.9;
@@ -1672,7 +1672,8 @@ button[type="submit"]:hover,
     }
 
     .mobile-menu {
-        max-height: calc(100dvh - var(--header-height));
+        height: 100dvh;
+        max-height: 100dvh;
         overflow-y: auto;
         padding-bottom: 3rem;
     }
@@ -1862,7 +1863,8 @@ button[type="submit"]:hover,
 
 
     .mobile-menu {
-        max-height: calc(100dvh - var(--header-height));
+        height: 100dvh;
+        max-height: 100dvh;
         overflow-y: auto;
         padding-bottom: 3rem;
     }
