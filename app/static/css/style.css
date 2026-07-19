@@ -1593,11 +1593,20 @@ button[type="submit"]:hover,
 }
 
 /* ========== RESPONSIVE DESIGN ========== */
+
 @media (max-width: 1024px) {
 
   header, .navbar {
     padding: 0.5rem 1.25rem;
   }
+
+  .hero-content h1 {
+        font-size: 3rem;
+        max-width: 500px;
+        line-height: 1.2;
+        text-align: center;
+        margin: 0 auto;
+    }
 
   .site-title {
     font-size: 1.8rem;
@@ -1613,8 +1622,8 @@ button[type="submit"]:hover,
   }
 
   .library-grid {
-        grid-template-columns: repeat(3, 1fr);
-    }
+      grid-template-columns: repeat(3, 1fr);
+  }
 
   .carousel-container {
     max-width: 90%;
@@ -1622,7 +1631,9 @@ button[type="submit"]:hover,
 
 }
 
+
 /* ========== DESKTOP STYLES ========== */
+
 @media (min-width: 993px) {
 
     .nav-links {
@@ -1635,8 +1646,10 @@ button[type="submit"]:hover,
 
 }
 
-/* ========== TABLET STYLES / Mobile Landscape ========== */
-@media (max-width: 992px) {
+
+/* ========== TABLET / SMALL LAPTOP LANDSCAPE ========== */
+
+@media (max-width: 992px) and (orientation: landscape) {
 
     .nav-links {
         display: none;
@@ -1646,16 +1659,41 @@ button[type="submit"]:hover,
         display: flex;
     }
 
+    .hero-content {
+        padding: 0.75rem 1rem;
+    }
+
+    .hero-content h1 {
+        font-size: 1.5rem;
+        max-width: 300px;
+        line-height: 1.2;
+        text-align: center;
+        margin: 0 auto;
+    }
+
+    .mobile-menu {
+        max-height: calc(100dvh - var(--header-height));
+        overflow-y: auto;
+        padding-bottom: 3rem;
+    }
+
+    .theme-toggle {
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+    }
+
 }
 
+
 /* ========== MOBILE STYLES ========== */
+
 @media (max-width: 768px) {
 
   :root {
     --header-height: 90px;
   }
 
-   header,
+  header,
   .navbar {
     padding: 0.3rem 1rem;
   }
@@ -1680,15 +1718,18 @@ button[type="submit"]:hover,
     justify-content: space-between;
   }
 
+
   .genre-grid {
-        display: grid;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 1rem;
-    }
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem;
+  }
+
 
   .library-grid {
-        grid-template-columns: repeat(2, 1fr);
-    }
+    grid-template-columns: repeat(2, 1fr);
+  }
+
 
   .results-grid,
   .book-grid {
@@ -1696,10 +1737,12 @@ button[type="submit"]:hover,
     gap: 1.25rem;
   }
 
+
   .pagination {
     gap: 0.5rem;
     padding: 0 1rem 1rem;
   }
+
 
   .pagination .pagination-link {
     min-width: 2.5rem;
@@ -1707,14 +1750,21 @@ button[type="submit"]:hover,
   }
 
 
-  h1 { font-size: 2.25rem; }
-  h2 { font-size: 1.75rem; }
+  h1 {
+    font-size: 2.25rem;
+  }
+
+  h2 {
+    font-size: 1.75rem;
+  }
+
 
   .hero-content {
     padding: 1rem;
   }
 
-    .hero-content p {
+
+  .hero-content p {
     padding: 0.75rem 1rem;
     font-size: 1rem;
   }
@@ -1725,17 +1775,21 @@ button[type="submit"]:hover,
     gap: 2rem;
   }
 
+
   .quote-container {
     padding: 1rem;
   }
+
 
   .quote-text {
     font-size: 1.4rem;
   }
 
+
   .slider-carousel {
     max-width: 300px;
   }
+
 
   .carousel-nav .prev,
   .carousel-nav .next {
@@ -1743,38 +1797,46 @@ button[type="submit"]:hover,
     font-size: 1rem;
   }
 
+
   .slide-text h3 {
     font-size: 1.1rem;
   }
+
 
   form.styled-form {
     padding: 1.5rem;
     margin: 1.5rem auto;
   }
 
+
   .book-detail {
     flex-direction: column;
     align-items: center;
   }
 
-  .book-links {
-        width: 100%;
-        justify-content: center;
-    }
 
-    .book-links .btn {
-        width: 100%;
-        max-width: 250px;
-    }
+  .book-links {
+    width: 100%;
+    justify-content: center;
+  }
+
+
+  .book-links .btn {
+    width: 100%;
+    max-width: 250px;
+  }
+
 
   .book-detail img {
     max-width: 220px;
   }
 
+
   .book-detail-info {
     width: 100%;
     text-align: left;
   }
+
 
   .book-data-bg {
     font-size: 0.95rem;
@@ -1783,43 +1845,79 @@ button[type="submit"]:hover,
     border-radius: 6px;
   }
 
+}
+
+
+/* ========== MOBILE LANDSCAPE OVERRIDE ========== */
+
+@media (max-width: 768px) and (orientation: landscape) {
+
+    .hero-content h1 {
+        font-size: 2.5rem;
+        max-width: 500px;
+        line-height: 1.2;
+        text-align: center;
+        margin: 0 auto;
+    }
+
+
+    .mobile-menu {
+        max-height: calc(100dvh - var(--header-height));
+        overflow-y: auto;
+        padding-bottom: 3rem;
+    }
+
+
+    .theme-toggle {
+        margin-top: 1rem;
+        margin-bottom: 2rem;
+    }
 
 }
 
+
 /* ========== EXTRA SMALL MOBILE STYLES ========== */
+
 @media (max-width: 480px) {
 
   :root {
     --header-height: 85px;
   }
 
+
   header,
   .navbar {
     padding: 0.3rem 0.75rem;
   }
+
 
   .site-title {
     font-size: 1.5rem;
     padding-top: 0;
   }
 
+
   .logo-section img {
     width: 45px;
     height: 45px;
-}
+  }
+
 
   .navbar-inner {
     padding-left: 0;
     padding-right: 0;
-}
+  }
+
 
   body {
     padding-top: var(--header-height);
   }
 
+
   .slider-carousel {
     max-width: 250px;
   }
+
 
   .genre-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1827,9 +1925,11 @@ button[type="submit"]:hover,
     padding: 0 1rem;
   }
 
+
   .library-grid {
     grid-template-columns: 1fr;
   }
+
 
   .results-grid,
   .book-grid {
@@ -1838,9 +1938,11 @@ button[type="submit"]:hover,
     padding: 0 1rem;
   }
 
+
   .pagination {
     gap: 0.4rem;
   }
+
 
   .pagination .pagination-link {
     min-width: 2.25rem;
@@ -1848,29 +1950,42 @@ button[type="submit"]:hover,
     font-size: 0.85rem;
   }
 
+
   .pagination .page-label {
     font-size: 0.85rem;
     padding: 0.4rem 0.75rem;
   }
+
 
   .book-card {
     max-width: 300px;
     margin: 0 auto;
   }
 
+
   .book-card-content {
     padding: 0.9rem;
   }
 
-  h1 { font-size: 1.8rem; }
-  h2 { font-size: 1.4rem; }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+
+  h2 {
+    font-size: 1.4rem;
+  }
+
 
   .flash-container {
     padding: 0 1rem;
   }
 
+
   .flash {
     font-size: 0.9rem;
     padding: 0.8rem 1rem;
   }
+
 }
