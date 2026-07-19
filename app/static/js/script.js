@@ -494,4 +494,39 @@
 
     }
 
+    // ==========================
+    // LOADING OVERLAY
+    // ==========================
+
+    // Show a loading overlay when navigating to a new page
+    document.querySelectorAll("a").forEach(link => {
+
+    link.addEventListener("click", () => {
+
+        const overlay = document.getElementById("loading-overlay");
+
+        if (overlay) {
+            overlay.classList.remove("hidden");
+        }
+
+    });
+
+});
+
+        // Show a loading spinner when searcing for books
+        const searchForm = document.querySelector(".search-form");
+
+        if (searchForm) {
+
+            searchForm.addEventListener("submit", () => {
+
+                const overlay = document.getElementById("loading-overlay");
+
+                if (overlay) {
+                    overlay.classList.remove("hidden");
+                }
+            });
+
+        }
+
 })();

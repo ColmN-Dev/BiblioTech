@@ -1,6 +1,6 @@
 # BiblioTech Documentation
 
-**Last updated:** July 17, 2026
+**Last updated:** July 19, 2026
 
 ---
 
@@ -21,19 +21,18 @@
    - Auth Routes  
 5. Frontend Status  
 6. Database and Models  
-7. Planned Features vs Current State  
+7. Planned Features vs Completed Features 
 8. Current Limitations  
 9. Key Design Decisions
-10. Google Books API Integration  
-11. API Reliability Improvements  
-12. Review System
+10. Google Books API Integration    
+11. Review System
+12. Account Management and Deletion System
 13. Frontend Improvements  
 14. Design Pattern Note: Facade  
 15. Challenges Faced and Solutions  
 16. What Was Learned So Far
-17. Account Management and Deletion System
-18. Next Milestones  
-19. References  
+17. Next Milestones  
+18. References 
 
 ---
 
@@ -64,18 +63,20 @@ This structure was suitable for early development but became harder to maintain 
 
 The project was refactored into a package-based structure:
 
-- run.py
-- app/
-  - __init__.py
-  - config.py
-  - models.py
-  - routes.py
-  - helpers.py
-   - auth/
-      - __init__.py
-      - routes.py
-  - templates/
-  - static/
+```text
+run.py
+app/
+  __init__.py
+  config.py
+  models.py
+  routes.py
+  helpers.py
+  auth/
+    __init__.py
+    routes.py
+  templates/
+  static/
+```
 
 This improved separation of responsibilities and provides a better foundation for future expansion.
 
@@ -108,6 +109,29 @@ python run.py
 - SQLAlchemy initialisation
 - Blueprint registration
 
+## Application Data Flow
+
+The application follows this general request flow:
+
+```text
+User Request
+      |
+      v
+Flask Route
+      |
+      v
+Helper Functions
+      |
+      +---- Cache Check
+      |
+      +---- Google Books API Request
+      |
+      +---- Data Processing
+      |
+      v
+Jinja Template Rendering
+```
+
 ## Configuration
 
 `app/config.py` provides:
@@ -126,16 +150,22 @@ Sensitive configuration is stored outside the codebase using environment variabl
 
 # Current Routes
 
-Routing is split by responsibility:
+Routing is split by responsibility using Flask Blueprints.
 
 ## Main Routes (`app/routes.py`)
 
 | Route | Purpose |
 |---|---|
-| `/` | Homepage |
-| `/search-results` | Search results |
-| `/book/<book_id>` | Book details   |
+| `/` | Homepage with featured books, genre categories, and carousel content |
+| `/search-results` | Search results with pagination |
+| `/book/<book_id>` | Book details, library actions, and reviews |
+| `/book/<book_id>/review` | Create or update a book review (login required) |
+| `/book/<book_id>/review/delete` | Delete a user's review (login required) |
 | `/library` | User library (login required) |
+| `/library/add/<book_id>` | Add a book to the user's library |
+| `/library/remove/<book_id>` | Remove a book from the user's library |
+| `/library/delete` | Account deletion with password confirmation |
+| `/genre/<genre>` | Browse books by genre/category |
 | `/about` | About page |
 
 ## Auth Routes (`app/auth/routes.py`)
@@ -152,9 +182,7 @@ Template links use blueprint-qualified endpoint names:
 - `url_for('auth.signup')`
 - `url_for('auth.logout')`
 
-The search route is connected to live Google Books API data, and book detail pages retrieve individual book information from the API.
-
----
+The application uses Google Books API data for searching, book details, homepage content, and genre browsing. Database routes handle user-specific features including saved libraries, reviews, and account management.
 
 # Frontend Status
 
@@ -250,13 +278,12 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 
 ---
 
-# Planned Features vs Current State
+# Planned Features vs Completed Features
 
 ## Planned Features
 
 - Search autocomplete
 - Genre filtering
-- Book recommendation system
 
 ## Completed Features
 
@@ -268,6 +295,7 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 - Personal library CRUD functionality using the `User_Library` association table, including saving/removing books, duplicate prevention, saved book counts, account information, and timestamps.
 - Review system allowing authenticated users to create, update, and delete reviews with 1-5 star ratings, review text, ownership checks, and database constraints.
 - Account deletion system with password confirmation, database relationship handling, cascade deletion for saved books, and preservation of reviews from deleted accounts.
+- Book detail genre matching recommendation list as a horizontal scroll with up to 12 results.
 
 ---
 
@@ -276,6 +304,7 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 1. No average rating calculation — outside scope.
 2. Autocomplete/filtering — still planned.
 3. Book cover quality/aspect ratio varies across the Google Books dataset.
+4. API data can be unreliable. Action must be taken to mitigate API errors such as caching successful requests
 
 ---
 
@@ -298,48 +327,121 @@ API functionality is contained inside:
 app/helpers.py
 ```
 
-## Functions
+## Book Processing Functions
 
-### `fetch_json(params, retries, url)`
+### `prepare_book(book)`
 
-Centralised API request handler.
+Processes raw Google Books API responses before they reach templates.
 
 Handles:
 
-- HTTP errors
-- Timeouts
-- JSON parsing failures
-- Retry attempts
-- Missing API responses
-- API key injection
+- Adding external links.
+- Adding Open Library fallback covers.
+- Cleaning Google Books cover URLs.
+- Selecting the final display cover image.
 
-The optional URL parameter allows the same request logic to be reused for both search requests and individual book detail requests.
+### `get_preferred_isbn(book)`
 
-Returns parsed JSON or `None`.
+Extracts the best available ISBN from a Google Books API response.
 
-### `search_books(query, max_results, start_index, order_by)`
+Priority:
 
-Searches books by:
+1. ISBN-13
+2. ISBN-10
 
-- title
-- author
-- keyword
+ISBN values are used for external links and Open Library cover fallback support.
 
-Used by the search route.
+### `has_isbn(book)`
 
-### `get_book_details(volume_id)`
+Checks whether a book contains a usable ISBN.
 
-Retrieves information about a single book.
+Used when selecting books for the homepage carousel, ensuring only books with enough information are displayed.
 
-Used by the book detail page.
+### `has_cover(book)`
 
-### `get_random_books(count)`
+Checks whether Google Books provides a cover image.
 
-Retrieves random books for homepage content, using genre-based subject searches.
+Used to avoid displaying incomplete carousel entries.
+
+### `add_custom_links(book)`
+
+Creates external book links using ISBN data.
+
+Generates links for:
+
+- Amazon
+- Goodreads
+- WorldCat
+
+### `add_openlibrary_cover(book)`
+
+Creates an Open Library cover fallback URL using ISBN data when Google Books does not provide an image.
+
+### `get_or_create_book(book_id)`
+
+Checks whether a book already exists in the database.
+
+If it does not:
+
+1. Retrieves book details from Google Books API.
+2. Creates a database record.
+3. Stores reusable book information.
 
 ---
 
-## Review System
+## API Functions
+
+### `fetch_json(params, url)`
+
+Centralised Google Books API request handler.
+
+Handles:
+
+- API key injection.
+- Request caching.
+- Timeouts.
+- HTTP errors.
+- Retry attempts.
+- API failure logging.
+
+Returns JSON data or `None`.
+
+### `search_books(query, max_results, start_index)`
+
+Searches Google Books and prepares returned books before sending them to templates.
+
+Supports:
+
+- Search queries.
+- Pagination through `start_index`.
+- Book preparation.
+
+### `get_book_details(volume_id)`
+
+Retrieves a single book using its Google Books volume ID.
+
+Used by the book detail page.
+
+### `get_books_by_subject(subject)`
+
+Retrieves books based on a genre or category.
+
+Used for genre browsing pages & More Like This section.
+
+### `get_random_books(count)`
+
+Generates homepage carousel content.
+
+Uses:
+
+- Random featured genres.
+- API caching.
+- Homepage caching.
+- Cover and ISBN validation.
+
+---
+
+# Review System
 
 ### Overview
 
@@ -389,6 +491,21 @@ The review interface uses:
 - Responsive review cards.
 - SVG icons for review actions.
 - Styled review sections matching the BiblioTech theme.
+
+---
+
+# Account Management and Deletion System
+
+Account deletion was designed around preserving meaningful user-generated content while removing personal account data.
+
+Deletion behaviour:
+
+- User library entries are deleted using cascade behaviour because saved books only exist as part of a user's personal collection.
+- Reviews are preserved after account deletion.
+- Review ownership is removed by setting `user_id` to NULL.
+- Deleted reviews display as "Deleted User" instead of attempting to access a missing account.
+
+This avoids unnecessary data loss while preventing broken relationships.
 
 ---
 
@@ -831,27 +948,36 @@ Database migrations were required after changing model constraints to keep the d
 
 ---
 
-## Challenge 19: Google Books API Daily Quota Exhaustion from Nested Retry Logic
+### Challenge 19: Google Books API Reliability and Request Caching
 
 ### Challenge
 
-Search, carousel, and genre grid intermittently failed to load throughout a single day of testing, initially suspected to be a frontend race condition between image sources (Google Books vs Open Library thumbnails) given how the failures jumped inconsistently between different parts of the site.
+Search, carousel, and genre pages occasionally failed during development, initially suggesting frontend issues because failures appeared inconsistent between different parts of the application.
 
-Added logging to `fetch_json()` to capture actual error responses rather than assuming the cause. This revealed genuine `503 Service Unavailable` and `429 Too Many Requests` responses from Google, not a frontend timing issue.
+Logging was added to the API request layer to capture the actual responses from Google Books. This revealed temporary API failures including HTTP 503 responses and rate limiting responses rather than frontend problems.
 
-Investigation showed `get_random_books()` and `fetch_json()` each had independent retry loops, meaning a single homepage load could trigger up to 25 real API calls in the worst case (5 genre attempts × 5 retries each). Checking Google Cloud Console confirmed the daily quota was at 99.7% (997/1,000 requests) from repeated dev-session testing.
+Further investigation showed that repeated development testing combined with retry logic could generate unnecessary API requests and contribute to reaching the daily API quota.
 
 ### Solution
 
-Added a simple in-memory TTL cache to `fetch_json()`, storing responses as `(value, timestamp)` pairs in a dictionary and checking against a 10-minute expiry before making a fresh request, so repeated homepage/genre loads reuse recent data instead of re-hitting the API.
+The API request system was improved by adding an in-memory TTL cache inside `fetch_json()`.
 
-Reduced `fetch_json()`'s internal retry attempts from 5 to 2, cutting worst-case nested call volume significantly.
+The cache stores successful API responses and reuses them for a defined period, reducing repeated requests for identical queries.
 
-Added a check to stop retrying immediately on a `429` response rather than continuing to hammer an already rate-limited endpoint, since retrying a hard quota limit only makes it worse.
+Current improvements include:
 
-The caching pattern was adapted from a standard Python TTL cache implementation (dict + timestamp checked on read) rather than adding a third-party dependency, consistent with the project's existing preference for simple, stateless functions in `helpers.py` over unnecessary abstraction.
+- API response caching using timestamps.
+- Separate homepage carousel caching.
+- Reduced retry attempts for failed requests.
+- Immediate stopping on HTTP 429 quota responses.
+- Improved logging of API failures.
 
-*Status: fix implemented but not yet verified end-to-end, as daily quota was exhausted before it could be tested against a live rate-limit scenario. To confirm once quota resets.*
+Current cache settings:
+
+- API responses: 6 hours.
+- Homepage carousel results: 6 hours.
+
+This reduces unnecessary external requests while improving reliability during normal application usage.
 
 ---
 
@@ -861,6 +987,7 @@ The caching pattern was adapted from a standard Python TTL cache implementation 
 - Flask-Migrate handles schema changes safely without recreating the database, but migrations must be planned around relationships.
 - External API data needs defensive handling: `.get()` defaults, validation, and sanitisation, since responses are often incomplete.
 - API failures (`None`) and empty results (`[]`) must be handled separately; retry logic covers temporary failures, and nested retry loops can multiply request volume fast enough to exhaust quota. Exposed keys should be rotated immediately.
+- Caching can significantly improve reliability when working with external APIs. Storing successful responses temporarily reduces unnecessary requests, improves loading times, and helps avoid hitting third-party rate limits.
 - Reliable integration is more than the query itself — offsets, URL construction, and third-party parameters all need correct handling.
 - Frontend issues (layout, image quality, responsiveness) often only surface with real API data, not placeholders.
 - UI state (menus, carousels, modals) needs centralised logic to stay consistent.
@@ -872,26 +999,10 @@ The caching pattern was adapted from a standard Python TTL cache implementation 
 
 ---
 
-## User Account Deletion Relationships
-
-Account deletion was designed around preserving meaningful user-generated content while removing personal account data.
-
-Deletion behaviour:
-
-- User library entries are deleted using cascade behaviour because saved books only exist as part of a user's personal collection.
-- Reviews are preserved after account deletion.
-- Review ownership is removed by setting `user_id` to NULL.
-- Deleted reviews display as "Deleted User" instead of attempting to access a missing account.
-
-This avoids unnecessary data loss while preventing broken relationships.
-
----
-
 # Next Milestones
 
-1. Implement book recommendation features using genre-based matching.
-2. Add search improvements such as autocomplete and filtering.
-3. Improve deployment and production testing.
+1. Add search improvements such as autocomplete and filtering.
+2. Improve deployment and production testing.
 
 ---
 
@@ -903,8 +1014,8 @@ https://flask.palletsprojects.com/
 - Flask SQLAlchemy:  
 https://flask-sqlalchemy.palletsprojects.com/
 
-- Flask Application Structure:  
-https://www.colabcodes.com/post/flask-application-structure-organizing-python-web-apps-for-scalability
+- Flask Configuration Handling:  
+https://flask.palletsprojects.com/en/latest/config/
 
 - Flask-Migrate documentation:  
 https://flask-migrate.readthedocs.io/
@@ -927,9 +1038,6 @@ https://requests.readthedocs.io/
 - Flask Error Handling:  
 https://flask.palletsprojects.com/en/latest/errorhandling/
 
-- Python Logging Documentation:  
-https://docs.python.org/3/library/logging.html
-
 - HTTP Status Codes Reference:  
 https://developer.mozilla.org/en-US/docs/Web/HTTP/Status
 
@@ -948,14 +1056,23 @@ https://alembic.sqlalchemy.org/
 - Pagination with Python:  
 https://www.geeksforgeeks.org/python/how-to-do-pagination-in-python/
 
-- Flask-SQLAlchemy Relationships:
-https://dev.to/freddiemazzilli/flask-sqlalchemy-relationships-exploring-relationship-associations-igo
-
 - Flask-Login Documentation: 
 https://flask-login.readthedocs.io/en/latest/
+
+- Flask Bcrypt Documentation:
+https://flask-bcrypt.readthedocs.io/en/1.0.1/
+
+- Flask Sessions Documentation:  
+https://flask.palletsprojects.com/en/latest/api/#sessions
 
 - Flask-SQLAlchemy Cascades:
 https://docs.sqlalchemy.org/en/21/orm/cascades.html
 
 - Custom Python Cache Implementation:
 https://medium.com/@saleem.latif.ee/implementing-a-custom-cache-in-python-68c39ece8a8
+
+- Python functools.lru_cache documentation:  
+https://docs.python.org/3/library/functools.html#functools.lru_cache
+
+- Python Logging Documentation:
+https://docs.python.org/3/library/logging.html

@@ -55,11 +55,14 @@ Book Discovery
 - Search
 - Pagination
 - Book details
-- Genre-based recommendations
+- Genre-based browsing
+- Homepage genre-based book carousel
 
 Personal Library
 - Save books
 - Remove books
+- View saved book collection
+- Track when books were added
 
 Reviews
 - Ratings
@@ -67,10 +70,8 @@ Reviews
 - Delete
 
 Account
-- Delete account
-
-
-Future development will focus on search autocomplete, along with continued API reliability improvements for recommendations.
+- Delete account with password confirmation
+- Preserve reviews after account deletion
 
 ---
 
@@ -111,6 +112,8 @@ The project follows the Flask application factory pattern.
 
 ```text
 BiblioTech/
+│
+├── migrations/
 │
 ├── run.py
 ├── Procfile
@@ -188,7 +191,7 @@ python -m flask db <command>
 
 ## Routing Structure
 
-- `app/routes.py` → main pages (`/`, `/search-results`, `/book/<book_id>`, `/library`, `/about`)
+- `app/routes.py` → main pages (`/`, `/search-results`, `/book/<book_id>`, `/book/<book_id>/review`, `/library`, `/library/delete`, `/genre/<subject>`, `/about`)
 - `app/auth/routes.py` → auth routes (`/auth/login`, `/auth/signup`, `/auth/logout`)
 - `app/auth/__init__.py` → auth blueprint setup
 
@@ -210,6 +213,9 @@ Template links and redirects for authentication use blueprint-qualified endpoint
 | `/book/<book_id>/review` | Create or update review |
 | `/book/<book_id>/review/delete` | Delete review |
 | `/library` | Personal library |
+| `/library/add/<book_id>` | Add book to personal library |
+| `/library/remove/<book_id>` | Remove book from personal library |
+| `/genre/<subject>` | Browse books by genre |
 | `/library/delete` | Delete user account |
 | `/about` | About page |
 | `/auth/login` | Login |
@@ -238,3 +244,7 @@ Template links and redirects for authentication use blueprint-qualified endpoint
 ### Book Detail Reviews
 
 ![Book Detail Reviews](app/static/images/Reviews.png)
+
+### More Like This
+
+![More Like This](app/static/images/Recommend.png)

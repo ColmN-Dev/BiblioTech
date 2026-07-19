@@ -1,9 +1,9 @@
 from flask import Blueprint, render_template, redirect, request, url_for, flash
 from flask_login import current_user, login_required, logout_user
-from app.helpers import search_books, get_book_details, get_random_books, FEATURED_GENRES
+from app.helpers import search_books, get_book_details, get_random_books, get_books_by_subject, get_or_create_book, FEATURED_GENRES
 import re
 from app import db, bcrypt
-from app.models import Review, User, User_Library, Book
+from app.models import Review, User, User_Library
 
 routes = Blueprint("routes", __name__)
 
@@ -12,10 +12,33 @@ routes = Blueprint("routes", __name__)
 @routes.route("/")
 def index():
     
-    featured_books = get_random_books(5) or []
+    featured_books = get_random_books()
     
     return render_template("index.html", featured_books=featured_books, genres=FEATURED_GENRES)
 
+# GENRE GRID RESULTS
+@routes.route("/genre/<genre>")
+def genre_results(genre):
+
+    results = get_books_by_subject(subject=genre)
+    
+    if not results:
+        return render_template(
+            "search_results.html",
+            query=genre,
+            results=[],
+            page=1,
+            per_page=20,
+            error="Unable to load genre results right now. Please try again."
+        )
+
+    return render_template(
+        "search_results.html",
+        query=genre,
+        results=results,
+        page=1,
+        per_page=20
+    )
 
 # SEARCH
 @routes.route("/search-results")
@@ -46,9 +69,22 @@ def search_results():
 def book_detail(book_id):
     
     book = get_book_details(volume_id=book_id)
-    
+
     if not book:
+        flash("Unable to retrieve book details right now.", "error")
         return redirect(url_for("routes.index"))
+    
+    # Safely extract the genre from the book's categories, if available
+    categories = book.get("volumeInfo", {}).get("categories", [])
+    genre = categories[0] if categories else None
+    
+    # Retrieve similar books for recommendations
+    recommended_books = get_books_by_subject(subject=genre)
+    
+    recommended_books = [
+        recommended for recommended in recommended_books 
+        if recommended.get("id") != book_id
+    ][:12] # Limit to 12 recommended books
     
     # Safely extract and clean HTML tags from book description
     volume_info = book.setdefault("volumeInfo", {})
@@ -71,8 +107,14 @@ def book_detail(book_id):
     # If the user is logged in, check if they have already submitted a review for this book
     if current_user.is_authenticated:
         user_review = Review.query.filter_by(user_id=current_user.id, google_book_id=book_id).first()
-    
-    return render_template("book_detail.html", book=book, saved=saved, book_id=book_id, reviews=reviews, user_review=user_review)
+
+    return render_template("book_detail.html",
+                           book=book, saved=saved,
+                           book_id=book_id,
+                           reviews=reviews,
+                           user_review=user_review,
+                           recommended_books=recommended_books
+                           )
 
 @routes.route("/book/<book_id>/review", methods=["POST"])
 @login_required
@@ -88,26 +130,11 @@ def create_or_update_review(book_id):
         return redirect(url_for("routes.book_detail", book_id=book_id))
     
     # Ensure the book exists in the database before creating a review
-    book = Book.query.filter_by(google_book_id=book_id).first()
+    book = get_or_create_book(book_id)
 
     if not book:
-        api_book = get_book_details(volume_id=book_id)
-
-        if not api_book:
-            flash("Unable to retrieve book details.", "error")
-            return redirect(url_for("routes.book_detail", book_id=book_id))
-
-        volume_info = api_book.get("volumeInfo", {})
-
-        book = Book(
-            google_book_id=book_id,
-            title=volume_info.get("title", "Unknown Title"),
-            authors=", ".join(volume_info.get("authors", [])),
-            cover_image=volume_info.get("imageLinks", {}).get("thumbnail", "")
-        )
-
-        db.session.add(book)
-        db.session.commit()
+        flash("Unable to retrieve book details.", "error")
+        return redirect(url_for("routes.book_detail", book_id=book_id))
     
     # Check if the user has already submitted a review for this book
     existing = Review.query.filter_by(user_id=current_user.id, google_book_id=book_id).first()
@@ -155,27 +182,12 @@ def about():
 def add_to_library(book_id):
     
     # Check if the book already exists in the database
-    book = Book.query.filter_by(google_book_id=book_id).first()
+    book = get_or_create_book(book_id)
     
     # If the book doesn't exist, fetch its details from the Google Books API and add it to the database
     if not book:
-        api_book = get_book_details(volume_id=book_id)
-    
-        if not api_book:
-            flash("Unable to retrieve book details.", "error")
-            return redirect(request.referrer or url_for("routes.your_library"))
-        
-        volume_info = api_book.get("volumeInfo", {})
-        
-        # Safely extract and clean HTML tags from book description
-        book = Book(google_book_id=book_id,
-                    title=volume_info.get("title", "Unknown Title"),
-                    authors=", ".join(volume_info.get("authors", [])),
-                    cover_image=volume_info.get("imageLinks", {}).get("thumbnail", "")
-        )
-        
-        db.session.add(book)
-        db.session.commit()
+        flash("Unable to retrieve book details.", "error")
+        return redirect(request.referrer or url_for("routes.your_library"))
     
     # Check if the book is already in the user's library
     existing = User_Library.query.filter_by(user_id=current_user.id, google_book_id=book_id).first()

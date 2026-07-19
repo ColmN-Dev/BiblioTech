@@ -40,7 +40,7 @@
 
         {% else %}
 
-            <a href="{{ url_for('auth.login') }}" class="btn">
+            <a href="{{ url_for('auth.login') }}" class="btn" id="save-btn">
                 Login to Save Books
             </a>
 
@@ -251,7 +251,7 @@
 
             {% else %}
 
-                <a href="{{ url_for('auth.login') }}" class="btn">
+                <a href="{{ url_for('auth.login') }}" class="btn" id="save-btn">
                     Login to Leave a Review
                 </a>
 
@@ -302,5 +302,42 @@
         </div>
     </div>
 </div>
+
+{% if recommended_books %}
+
+<h2 class="about-section">More Like This</h2>
+
+<div class="recommended-carousel">
+
+    {% for book in recommended_books %}
+
+        {% set volume = book.get('volumeInfo', {}) %}
+
+        <a href="{{ url_for('routes.book_detail', book_id=book.id) }}" class="book-card recommended-book">
+
+            <img 
+                src="{{ volume.get('imageLinks', {}).get('thumbnail', '') }}"
+                alt="{{ volume.get('title', 'Unknown Title') }}"
+            >
+
+            <div class="book-card-content">
+
+                <h3>
+                    {{ volume.get('title', 'Unknown Title') }}
+                </h3>
+
+                <p>
+                    {{ volume.get('authors', ['Unknown Author'])[0] }}
+                </p>
+
+            </div>
+
+        </a>
+
+    {% endfor %}
+
+</div>
+
+{% endif %}
 
 {% endblock %}

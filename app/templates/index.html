@@ -70,40 +70,29 @@
 
                 <div class="slider-carousel">
 
-                {% for book in featured_books %}
+                        {% for book in featured_books %}
 
-                    <div class="slide {% if loop.first %}active{% endif %}">
+                            <div class="slide {% if loop.first %}active{% endif %}">
 
-                        <a href="{{ url_for('routes.book_detail', book_id=book.id) }}">
+                                <a href="{{ url_for('routes.book_detail', book_id=book.id) }}">
 
-                        {% set image_links = book.volumeInfo.get("imageLinks", {}) %}
+                                    <img 
+                                        src="{{ book.volumeInfo.get('displayCover', '/static/images/no-cover.png') }}"
+                                        alt="{{ book.volumeInfo.get('title', 'Unknown title') }}"
+                                        onerror="this.src='/static/images/no-cover.png';"
+                                    >
 
-                        {% if image_links.get("thumbnail") %}
-                            <img 
-                                src="{{ image_links.get('thumbnail') }}"
-                                alt="{{ book.volumeInfo.get('title', 'Unknown title') }}"
-                                onerror="this.src='/static/images/no-cover.png'"
-                            >
-                        {% else %}
-                            <img 
-                                src="/static/images/no-cover.png"
-                                alt="No cover available"
-                            >
-                        {% endif %}
+                                </a>
 
-                        </a>
+                                <div class="slide-text">
+                                    <h3>
+                                        {{ book.volumeInfo.get("title", "Unknown title") }}
+                                    </h3>
+                                </div>
 
-                        <div class="slide-text">
+                            </div>
 
-                            <h3>
-                                {{ book.volumeInfo.title }}
-                            </h3>
-
-                        </div>
-
-                    </div>
-
-                {% endfor %}
+                        {% endfor %}
 
                 </div>
 
@@ -131,7 +120,7 @@
 
     <div class="genre-grid">
     {% for genre in genres %}
-    <a href="{{ url_for('routes.search_results', query='subject:' + genre) }}" class="genre-card">
+    <a href="{{ url_for('routes.genre_results', genre=genre) }}" class="genre-card">
         <span>{{ genre }}</span>
     </a>
     {% endfor %}

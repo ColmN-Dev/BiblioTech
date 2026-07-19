@@ -629,8 +629,8 @@ body.menu-open {
 }
 
 .library-grid {
-    grid-template-columns: repeat(auto-fit, minmax(220px, 280px));
-    justify-content: center;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
 }
 
@@ -1222,7 +1222,7 @@ button[type="submit"]:hover,
 
 #save-btn {
   display: block;
-  margin: 1rem auto 0;
+  margin: 1rem auto;
   background-color: var(--gold);
   color: var(--charcoal);
   padding: 0.75rem 1.5rem;
@@ -1396,6 +1396,30 @@ button[type="submit"]:hover,
   font-size: 0.95rem;
 }
 
+/* ========== RECOMMENDED BOOKS CAROUSEL ========== */
+
+.recommended-carousel {
+    display: flex;
+    gap: 1.5rem;
+    overflow-x: auto;
+    padding: 1rem 0.5rem;
+    scroll-behavior: smooth;
+}
+
+.recommended-carousel::-webkit-scrollbar {
+    height: 10px;
+}
+
+.recommended-carousel::-webkit-scrollbar-thumb {
+    background: var(--gold);
+    border-radius: 10px;
+}
+
+.recommended-book {
+    min-width: 180px;
+    flex: 0 0 180px;
+}
+
 /* ========== EMPTY STATES / LOADING ========== */
 .empty-state {
   text-align: center;
@@ -1464,26 +1488,54 @@ button[type="submit"]:hover,
   margin-bottom: 0;
 }
 
+.loading-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+}
+
+.loading-overlay.hidden {
+    display: none;
+}
+
 .spinner-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 1rem;
-  padding: 3rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.spinner-container p {
+    color: var(--text-dark);
+    font-size: 1.75rem;
+    font-weight: 600;
+}
+
+[data-theme="dark"] .spinner-container p {
+    color: var(--ivory);
 }
 
 .spinner {
-  width: 40px;
-  height: 40px;
-  border: 4px solid var(--border-color);
-  border-top: 4px solid var(--gold);
-  border-radius: 50%;
-  animation: spin 1s linear infinite;
+    width: 40px;
+    height: 40px;
+    border: 4px solid var(--border-color);
+    border-top: 4px solid var(--gold);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
 }
 
 /* ========================================
@@ -1556,10 +1608,13 @@ button[type="submit"]:hover,
   }
 
   .genre-grid,
-  .results-grid,
-  .book-grid {
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  .results-grid {
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
   }
+
+  .library-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
 
   .carousel-container {
     max-width: 90%;
@@ -1629,6 +1684,10 @@ button[type="submit"]:hover,
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 1rem;
+    }
+
+  .library-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 
   .results-grid,
@@ -1768,6 +1827,9 @@ button[type="submit"]:hover,
     padding: 0 1rem;
   }
 
+  .library-grid {
+    grid-template-columns: 1fr;
+  }
 
   .results-grid,
   .book-grid {

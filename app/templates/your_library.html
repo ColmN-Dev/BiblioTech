@@ -22,7 +22,7 @@
 <p class="highlighted-text">Here you can manage your personal book collection.</p>
 
 {% if books %}
-    <div class="results-grid library-grid">
+    <div class="library-grid">
         {% for entry in library_entries %}
         <div class="book-card-wrapper">
         <a href="{{ url_for('routes.book_detail', book_id=entry.book.google_book_id) }}">

@@ -5,33 +5,64 @@
 {% block content %}
 
 <div class="back-btn-container">
-<a href="{{ url_for('routes.index') }}" class="btn">
-    &larr; Back to Home
-</a>
+    <a href="{{ url_for('routes.index') }}" class="btn">
+        &larr; Back to Home
+    </a>
 </div>
 
 <div class="highlighted-text">
 
-<h1 class="about-section">About BiblioTech</h1>
+    <h1 class="about-section">About BiblioTech</h1>
 
     <p class="book-data-bg">
-        Welcome to BiblioTech, a book discovery platform designed to help users explore, discover, and manage their personal book collections.
+        <strong>BiblioTech</strong> is a full-stack web application designed to help readers discover, organise, and review books in one place. Built using modern web technologies, the platform combines book discovery, personal library management, and user-generated reviews to create an enjoyable reading experience.
     </p>
 
     <h2 class="about-section">What is BiblioTech?</h2>
 
     <p class="book-data-bg">
-        BiblioTech is a Flask-based web application that allows users to search for books using the Google Books API, view detailed book information, and build their own personal library.
+        BiblioTech enables users to search for books using the Google Books API, explore detailed book information, save books to their personal library, and share ratings and reviews with other readers. The application focuses on providing a clean, responsive, and user-friendly experience while demonstrating the principles of modern full-stack software development.
     </p>
 
+    <h2 class="about-section">Key Features</h2>
+
+    <div class="book-data-bg">
+        <ul>
+            <li>Search for books using the Google Books API.</li>
+            <li>Create a secure user account and authenticate using Flask-Login.</li>
+            <li>Save and manage a personal book collection.</li>
+            <li>Create, edit, and delete book reviews and ratings.</li>
+            <li>View detailed book information retrieved from external APIs.</li>
+            <li>Responsive interface designed for desktop and mobile devices.</li>
+            <li>Dynamic page rendering using the Jinja2 templating engine.</li>
+        </ul>
+    </div>
+
+    <h2 class="about-section">Technology Stack</h2>
+
+    <div class="book-data-bg">
+        <ul>
+            <li><strong>Backend:</strong> Python, Flask, SQLAlchemy, PostgreSQL</li>
+            <li><strong>Frontend:</strong> HTML5, CSS3, JavaScript</li>
+            <li><strong>Templating:</strong> Jinja2</li>
+            <li><strong>Authentication:</strong> Flask-Login & Flask Bcrypt Security</li>
+            <li><strong>API Integration:</strong> Google Books API</li>
+            <li><strong>Version Control:</strong> Git & GitHub</li>
+        </ul>
+    </div>
+
+    <h2 class="about-section">Project Goals</h2>
+
     <p class="book-data-bg">
-        Future features include user accounts, book reviews, ratings, and personalised library management.
+        BiblioTech was developed as a practical full-stack software engineering project with the goal of applying real-world development practices. The project brings together frontend development, backend programming, database management, authentication, API integration, and dynamic web rendering into a single cohesive application.
     </p>
 
     <h2 class="about-section">The Meaning Behind the Name</h2>
 
     <p class="book-data-bg">
-        The name BiblioTech combines "Biblio", derived from the Greek word "biblios" meaning book, with "Tech" to represent the combination of traditional reading and modern technology.
+        The name <strong>BiblioTech</strong> combines <em>"Biblio"</em>, derived from the Greek word <em>biblios</em> meaning "book", with <em>"Tech"</em>, representing modern software development and technology. Together, the name reflects the project's purpose of connecting literature with contemporary web technologies.
     </p>
+
 </div>
+
 {% endblock %}
