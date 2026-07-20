@@ -476,8 +476,11 @@ def get_books_by_subject(subject):
     # Check if the subject is already cached
     global _subject_cache
     
+    # Return cached results if still valid
     if subject in _subject_cache:
-        return _subject_cache[subject]
+        saved_time, books = _subject_cache[subject]
+        if time.time() - saved_time < API_CACHE_DURATION:
+            return books
 
     data = fetch_json({
         "q": subject,
@@ -486,15 +489,15 @@ def get_books_by_subject(subject):
     })
 
     if not data or "items" not in data:
-        return _subject_cache.get(subject, [])
+        
+        if subject in _subject_cache:
+            return _subject_cache[subject]
+        return []
 
-    books = []
+    books = [prepare_book(book) for book in data["items"]]
 
-    for book in data["items"]:
-        books.append(prepare_book(book))
-
-    # Cache the results for this subject
-    _subject_cache[subject] = books
+    # Cache the results for future requests
+    _subject_cache[subject] = (time.time(), books)
 
     return books
 
@@ -553,8 +556,6 @@ def get_random_books(count=5):
 
         for book in data["items"]:
         
-            
-
             # Only use books with covers
             if has_cover(book):
                 
@@ -565,19 +566,14 @@ def get_random_books(count=5):
 
             # Stop once books match the requested count
             if len(books) >= count:
+                break
 
-
+            if len(books) >= count:
                 _homepage_cache = books
 
                 _homepage_cache_time = time.time()
 
-
-                return books[:count]
-
-    # If API fails, use old cached data
-    if _homepage_cache:
-
-        return _homepage_cache
+                return _homepage_cache
 
 
 
