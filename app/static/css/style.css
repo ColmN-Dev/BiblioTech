@@ -30,7 +30,7 @@
   --border-color: #ddd;
 
   /* Header height for offsetting fixed header */
-  --header-height: 90px;
+  --header-height: 85px;
 
 }
 
@@ -152,13 +152,13 @@ header,
     position: fixed;
     top: 0;
     left: 0;
+    z-index: 1000;
     width: 100%;
     background: rgba(43, 43, 43, 0.75);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(171, 131, 82, 0.25);
     padding: 0.5rem 1.5rem;
-    z-index: 1000;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.25);
 }
 
@@ -315,6 +315,7 @@ body.menu-open {
     width: 280px;
     height: 100dvh;
     max-height: 100dvh;
+    z-index: 999;
 
     background: rgba(43, 43, 43, 0.95);
     opacity: 0.9;
@@ -326,8 +327,6 @@ body.menu-open {
     display: flex;
     flex-direction: column;
     gap: 1.2rem;
-
-    z-index: 999;
 
     overflow-y: auto;
     overflow-x: hidden;
@@ -343,7 +342,8 @@ body.menu-open {
 
 .mobile-toggle {
     margin-top: 1rem;
-    justify-content: flex-start;
+    align-self: flex-start;
+    justify-self: flex-start;
 }
 
 .mobile-menu a {
@@ -395,15 +395,28 @@ body.menu-open {
 }
 
 /* ========== SEARCH BAR ========== */
+
 .search-container {
   max-width: 600px;
   margin: 2rem auto;
   padding: 0 1.5rem;
+  position: relative;
 }
 
 .search-form {
   display: flex;
   gap: 0.5rem;
+}
+
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-input-wrapper input {
+  width: 100%;
+  padding-right: 3rem;
+  box-sizing: border-box;
 }
 
 .search-form input {
@@ -415,7 +428,11 @@ body.menu-open {
   font-size: 1rem;
   background-color: var(--ivory);
   color: var(--charcoal);
-  transition: border-color 0.2s ease;
+}
+
+[data-theme="dark"] .search-form input {
+  background-color: var(--charcoal);
+  color: var(--ivory);
 }
 
 .search-form input::placeholder {
@@ -425,11 +442,6 @@ body.menu-open {
 .search-form input:focus {
   outline: none;
   border-color: var(--gold);
-  transition: all 0.2s ease;
-}
-
-.search-form input:hover {
-  filter: brightness(0.9);
 }
 
 .search-form > button[type="submit"] {
@@ -441,59 +453,91 @@ body.menu-open {
   font-family: var(--body-font);
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s ease, transform 0.2s ease, filter 0.3s ease;
 }
 
 .search-form > button[type="submit"]:hover {
   background-color: #937048;
   transform: translateY(-2px);
-  filter: drop-shadow(0 0 2px rgba(0,0,0,.5));
-}
-
-.search-input-wrapper {
-  position: relative;
-  flex: 1;
 }
 
 
-.search-input-wrapper input {
-  width: 100%;
-  padding-right: 3rem;
-  box-sizing: border-box;
-}
-
+/* Clear button */
 
 .search-clear-btn {
-  display: none;
+    display: none;
+    position: absolute;
+    right: 12px;
+    top: 50%;
 
-  position: absolute;
-  right: 10px;
-  top: 50%;
+    transform: translateY(-50%);
 
-  transform: translateY(-50%);
+    background: transparent;
+    border: none;
 
-  background: none !important;
-  color: var(--charcoal) !important;
+    width: auto;
+    height: auto;
 
-  border: none !important;
+    padding: 0;
+    margin: 0;
+    font-size: 1.4rem;
+    line-height: 1;
 
-  padding: 0;
-
-  font-size: 1.4rem;
-  cursor: pointer;
-
-  filter: none !important;
+    color: var(--charcoal);
+    cursor: pointer;
+    z-index: 10;
 }
 
+[data-theme="dark"] .search-clear-btn {
+    color: var(--ivory);
+}
 
 .search-clear-btn.visible {
-  display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.search-clear-btn:hover {
+    color: var(--gold);
 }
 
 
-.search-clear-btn:hover {
-  color: var(--gold) !important;
-  transform: translateY(-50%);
+/* Autocomplete */
+
+#suggestions {
+    display: none;
+
+    position: absolute;
+    top: calc(100% + 5px);
+    left: 0;
+    right: 0;
+
+    background: var(--ivory);
+    border: 1px solid #ccc;
+    border-radius: 0 0 6px 6px;
+
+    max-height: 200px;
+    overflow-y: auto;
+
+    z-index: 100;
+}
+
+[data-theme="dark"] #suggestions {
+    background: var(--charcoal);
+    border-color: #555;
+}
+
+#suggestions.open {
+    display: block;
+}
+
+.suggestion {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+}
+
+.suggestion:hover {
+    background-color: var(--gold);
 }
 
 /* ========================================
@@ -1719,6 +1763,39 @@ button[type="submit"]:hover,
     justify-content: space-between;
   }
 
+  .search-form {
+    flex-direction: column;
+    position: relative;
+    gap: 0.75rem;
+    width: 100%;
+  }
+
+  .search-input-wrapper {
+    width: 100%;
+  }
+
+  #suggestions {
+    max-height: 200px;
+  }
+
+  #featured-books {
+    font-size: 2rem;
+  }
+
+  #browse-genre {
+    font-size: 2rem;
+  }
+
+  .search-form input {
+    width: 100%;
+    font-size: 1.1rem;
+    padding: 0.9rem 1rem;
+  }
+
+  .search-form button [type="submit"] {
+    width: 100%;
+    padding: 0.9rem 1rem;
+  }
 
   .genre-grid {
     display: grid;

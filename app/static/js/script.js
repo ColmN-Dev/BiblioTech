@@ -67,57 +67,100 @@
 
     }
 
+            // ====================================
+            // SEARCH AUTOCOMPLETE & CLEAR BUTTON
+            // ====================================
 
-    // ==========================
-    // SEARCH INPUT CLEAR BUTTON
-    // ==========================
+            const searchInput = document.getElementById("searchInput");
+            const clearBtn = document.getElementById("clearBtn");
+            const suggestions = document.getElementById("suggestions");
+            
+            let timeout;
 
-    const searchInput = document.getElementById("searchInput");
-    const clearBtn = document.getElementById("clearBtn");
-
-    if (searchInput && clearBtn) {
-
-        searchInput.addEventListener("input", () => {
-
-            if (searchInput.value.trim() !== "") {
-                clearBtn.classList.add("visible");
-            } else {
-                clearBtn.classList.remove("visible");
-            }
-
-        });
-
-
-        clearBtn.addEventListener("click", () => {
-
-            searchInput.value = "";
-
-            clearBtn.classList.remove("visible");
-
-            searchInput.focus();
-
-        });
-
-
-        searchInput.addEventListener("keydown", (event) => {
-
-            if (event.key === "Escape") {
-
-                searchInput.value = "";
-
-                clearBtn.classList.remove("visible");
+            function clearAutocomplete() {
+                suggestions.innerHTML = "";
+                suggestions.classList.remove("open");
 
             }
 
-        });
+            if (searchInput && suggestions) {
 
+                searchInput.addEventListener("input", () => {
 
-        if (searchInput.value.trim() !== "") {
-            clearBtn.classList.add("visible");
-        }
+                    const query = searchInput.value.trim();
 
-    }
+                    // Show or hide the clear button
+                    clearBtn?.classList.toggle("visible", query !== "");
 
+                    clearAutocomplete();
+
+                    // Restart request timer
+                    clearTimeout(timeout);
+
+                    // Don't search until at least 2 characters
+                    if (query.length < 2) return;
+
+                    // Wait a short time before searching
+                    timeout = setTimeout(async () => {
+
+                        // Fetch suggestions from the server
+                        const response = await fetch(`/auto-complete?q=${encodeURIComponent(query)}`);
+                        const results = await response.json();
+                        const limitedResults = results.slice(0, 8); // Limit to 8 suggestions
+
+                        // Add each suggestion to the dropdown
+                        limitedResults.forEach(title => {
+
+                            const item = document.createElement("div");
+
+                            item.className = "suggestion";
+                            item.textContent = title;
+
+                            // Fill the search box when clicked
+                            item.onclick = () => {
+                                searchInput.value = title;
+                                clearAutocomplete();
+                                clearBtn?.classList.add("visible");
+                            };
+
+                            // Show the suggestions dropdown
+                            suggestions.appendChild(item);
+
+                        });
+
+                        // Show the dropdown if suggestions exist
+                        if (limitedResults.length > 0) {
+                            suggestions.classList.add("open");
+                        }
+
+                    }, 250);
+
+                });
+
+                // Clear the search input
+                clearBtn?.addEventListener("click", () => {
+
+                    searchInput.value = "";
+                    searchInput.focus();
+
+                    clearAutocomplete();
+
+                    clearBtn.classList.remove("visible");
+
+                });
+
+                // Clear the search input when pressing the Escape key
+                searchInput.addEventListener("keydown", (event) => {
+                    if (event.key === "Escape") {
+                        searchInput.value = "";
+                        clearAutocomplete();
+                        clearBtn?.classList.remove("visible");
+                    }
+                });
+
+                clearBtn?.classList.toggle("visible", searchInput.value.trim() !== "");
+
+            }
 
     // ==========================
     // DARK MODE TOGGLE

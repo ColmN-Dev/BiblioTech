@@ -1,11 +1,13 @@
-from flask import Blueprint, render_template, redirect, request, url_for, flash
+from flask import Blueprint, jsonify, render_template, redirect, request, url_for, flash
 from flask_login import current_user, login_required, logout_user
 from app.helpers import search_books, get_book_details, get_random_books, get_books_by_subject, get_or_create_book, FEATURED_GENRES
 import re
+import logging
 from app import db, bcrypt
 from app.models import Review, User, User_Library
 
 routes = Blueprint("routes", __name__)
+logger = logging.getLogger(__name__)
 
 
 # INDEX
@@ -62,6 +64,34 @@ def search_results():
         results = search_books(query, max_results=per_page, start_index=start_index)
     
     return render_template("search_results.html", query=query, results=results, page=page, per_page=per_page)
+
+@routes.route("/auto-complete")
+def auto_complete():
+    """Return a JSON response with book titles that match the search query for auto-complete functionality."""
+    query = request.args.get("q", "").strip()
+    
+    if len(query) < 2:
+        return jsonify([])  # Return an empty list if the query is too short
+    
+    books = search_books(query, max_results=5)
+    
+    if not books:
+        logger.warning(f"No results for search: {query}")
+        return jsonify([])
+    
+    # Extract book titles from the search results and return them as a JSON response
+    suggestions = []
+    seen_titles = set()
+    
+    for book in books:
+        
+        title = book.get("volumeInfo", {}).get("title", "")
+        
+        if title and title not in seen_titles:
+            suggestions.append(title)
+            seen_titles.add(title)
+            
+    return jsonify(suggestions)
 
 
 # BOOK DETAIL

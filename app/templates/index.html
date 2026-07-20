@@ -23,9 +23,12 @@
                             type="text"
                             id="searchInput"
                             name="query"
+                            autocomplete="off"
                             placeholder="Search books..."
                             value="{{ query if query else '' }}"
                         >
+
+                        <div id="suggestions"></div>
 
                         <button 
                             type="button"
@@ -51,7 +54,7 @@
 
 <section class="featured-books">
 
-    <h2>Featured Books</h2>
+    <h2 id="featured-books">Featured Books</h2>
 
     <div class="featured-content">
 
@@ -116,7 +119,7 @@
 
 
 <section class="genre-section">
-    <h2>Browse by Genre</h2>
+    <h2 id="browse-genre">Browse by Genre</h2>
 
     <div class="genre-grid">
     {% for genre in genres %}
