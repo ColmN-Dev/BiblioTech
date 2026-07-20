@@ -1,6 +1,6 @@
 # BiblioTech Documentation
 
-**Last updated:** July 19, 2026
+**Last updated:** July 21, 2026
 
 ---
 
@@ -158,6 +158,7 @@ Routing is split by responsibility using Flask Blueprints.
 |---|---|
 | `/` | Homepage with featured books, genre categories, and carousel content |
 | `/search-results` | Search results with pagination |
+| `/auto-complete`  | Search Autocomplete and dropdown |
 | `/book/<book_id>` | Book details, library actions, and reviews |
 | `/book/<book_id>/review` | Create or update a book review (login required) |
 | `/book/<book_id>/review/delete` | Delete a user's review (login required) |
@@ -282,8 +283,7 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 
 ## Planned Features
 
-- Search autocomplete
-- Genre filtering
+- No current planned features
 
 ## Completed Features
 
@@ -296,15 +296,15 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 - Review system allowing authenticated users to create, update, and delete reviews with 1-5 star ratings, review text, ownership checks, and database constraints.
 - Account deletion system with password confirmation, database relationship handling, cascade deletion for saved books, and preservation of reviews from deleted accounts.
 - Book detail genre matching recommendation list as a horizontal scroll with up to 12 results.
+- Live search autocomplete with a debounced dropdown, keyboard-friendly clear button, and Escape-to-clear support.
 
 ---
 
 # Current Limitations
 
 1. No average rating calculation — outside scope.
-2. Autocomplete/filtering — still planned.
-3. Book cover quality/aspect ratio varies across the Google Books dataset.
-4. API data can be unreliable. Action must be taken to mitigate API errors such as caching successful requests
+2. Book cover quality/aspect ratio varies across the Google Books dataset.
+3. API data can be unreliable. Action must be taken to mitigate API errors such as caching successful requests
 
 ---
 
@@ -981,6 +981,27 @@ This reduces unnecessary external requests while improving reliability during no
 
 ---
 
+### Challenge 20: Challenge 20: Implementing Search Autocomplete
+ 
+### Challenge
+ 
+Search autocomplete needed to suggest book titles as the user typed, without flooding the backend with a request on every keystroke, and without duplicating the clear-button logic already used elsewhere in the search input.
+ 
+An initial "ghost text" approach was attempted first — showing an inline, greyed-out completion directly inside the search box, similar to some search engines' (e.g Google) inline suggestion style. This was scrapped after testing, since positioning the overlay text correctly against the real input value added significant complexity for limited UX benefit over a standard dropdown.
+ 
+### Solution
+ 
+Replaced the ghost-text approach with a conventional dropdown suggestion list, built around three pieces:
+ 
+1. **Debounced fetch** — a `setTimeout`/`clearTimeout` pattern delays the request until the user pauses typing for roughly a quarter of a second, rather than firing a request on every keystroke.
+2. **A dedicated `/auto-complete` route**, queried once the debounce timer completes, returning a JSON list of matching titles.
+3. **A shared `clearSuggestions()`/`clearAutocomplete()` helper**, reused by the dropdown rendering logic, the clear button, and the Escape key handler, so the "wipe the suggestions list" behaviour lives in one place rather than being repeated across handlers.
+The dropdown's visibility is controlled with a single `.open` CSS class toggled via `classList`, in line with the project's existing preference for class-based state changes over direct inline style manipulation in JavaScript.
+ 
+Clicking a suggestion fills the search input with the selected title and clears the dropdown, matching the interaction pattern of the existing clear button.
+ 
+---
+
 # What Was Learned So Far
 
 - Refactors (application factories, env variables, separated helpers) are usually organisational improvements, not logic changes — they pay off in scalability and maintainability.
@@ -1001,8 +1022,7 @@ This reduces unnecessary external requests while improving reliability during no
 
 # Next Milestones
 
-1. Add search improvements such as autocomplete and filtering.
-2. Improve deployment and production testing.
+1. Improve deployment and production testing.
 
 ---
 

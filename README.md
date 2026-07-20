@@ -8,7 +8,9 @@ The application uses PostgreSQL for persistent storage and follows the Flask app
 
 ## Application Link
 
-Live Site: https://bibliotech-ifum.onrender.com
+![BiblioTech Logo](app/static/images/BiblioTech_Logo.png)
+
+Live Site: [BiblioTech](https://bibliotech-ifum.onrender.com)
 
 ---
 
@@ -53,6 +55,7 @@ Authentication
 
 Book Discovery
 - Search
+- Live search suggestions with autocomplete
 - Pagination
 - Book details
 - Genre-based browsing
@@ -209,6 +212,7 @@ Template links and redirects for authentication use blueprint-qualified endpoint
 |-------|---------|
 | `/` | Homepage |
 | `/search-results` | Search books |
+| `/auto-complete`  | Search Autocomplete |
 | `/book/<book_id>` | Book details |
 | `/book/<book_id>/review` | Create or update review |
 | `/book/<book_id>/review/delete` | Delete review |
