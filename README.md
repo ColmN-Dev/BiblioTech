@@ -4,6 +4,10 @@ BiblioTech is a full-stack Flask web application that allows users to discover b
 
 The application uses PostgreSQL for persistent storage and follows the Flask application factory pattern with Blueprints for maintainability and scalability.
 
+---
+
+# Site Logo
+
 ![BiblioTech Logo](app/static/images/BiblioTech_Logo.png)
 
 ---
