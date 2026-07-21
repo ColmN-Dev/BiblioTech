@@ -555,7 +555,7 @@ def get_random_books(count=5):
 
 
         for book in data["items"]:
-        
+            
             # Only use books with covers
             if has_cover(book):
                 
@@ -563,19 +563,20 @@ def get_random_books(count=5):
                     prepare_book(book)
                 )
 
-
             # Stop once books match the requested count
             if len(books) >= count:
                 break
 
-            if len(books) >= count:
-                _homepage_cache = books
+        if len(books) >= count:
+            _homepage_cache = books
 
-                _homepage_cache_time = time.time()
+            _homepage_cache_time = time.time()
 
-                return _homepage_cache
+            return _homepage_cache
 
-
+    # Fallback to stale cache if API fails
+    if _homepage_cache:
+        return _homepage_cache
 
     logger.warning(
         "Unable to load homepage carousel."
