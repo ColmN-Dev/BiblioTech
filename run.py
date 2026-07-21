@@ -6,7 +6,8 @@ from app import create_app
 
 app = create_app()
 
+# Run the application and set the host and port based on environment variables
 if __name__ == "__main__":
-    is_production = os.environ.get("FLASK_ENV") == "production"
+    is_production = os.environ.get("FLASK_DEBUG") == "production"
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=not is_production)
