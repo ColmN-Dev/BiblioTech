@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block title %}Internal Server Error{% endblock %}
+
+{% block content %}
+
+<div class="back-btn-container">
+    <a href="{{ url_for('routes.index') }}" class="btn">
+        &larr; Back to Home
+    </a>
+</div>
+
+    <h1>Internal Server Error</h1>
+    <p class="highlighted-text">An unexpected error occurred on the server. Please try again later.</p>
+
+{% endblock %}
