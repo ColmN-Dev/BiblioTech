@@ -16,6 +16,10 @@ The application uses PostgreSQL for persistent storage and follows the Flask app
 
 ### Live Site: [BiblioTech](https://bibliotech-ifum.onrender.com)
 
+## Deployment
+
+The application is deployed on Render using Gunicorn and PostgreSQL.
+
 ---
 
 ## Technologies Used
@@ -63,7 +67,7 @@ Book Discovery
 - Pagination
 - Book details
 - Genre-based browsing
-- Homepage genre-based book carousel
+- Homepage featuring a dynamically generated book carousel organised by genre.
 
 Personal Library
 - Save books
@@ -84,7 +88,7 @@ Account
 
 ## Homepage Features
 
-- Dynamic quote section
+- Random literary quote displayed on each visit.
 - Google Books powered carousel
 - Genre-based random book recommendations
 - Automatic carousel rotation with navigation controls
@@ -112,6 +116,21 @@ The project follows the Flask application factory pattern.
 - Helper functions encapsulate Google Books API interactions.
 - Flask-Migrate manages schema migrations.
 - Flask-Login handles authentication.
+
+---
+
+## Database
+
+The application uses PostgreSQL with SQLAlchemy ORM.
+
+Core tables include:
+
+- users
+- books
+- reviews
+- user_library
+
+Relationships are enforced using foreign keys and cascading behaviour where appropriate.
 
 ---
 
@@ -194,6 +213,32 @@ For database management commands:
 ```bash
 python -m flask db <command>
 ```
+---
+
+## Testing
+
+The project includes automated tests using pytest to verify core application functionality.
+
+The application uses a dedicated PostgreSQL test database for automated testing, keeping development data separate from test data.
+
+Run the test suite:
+
+```bash
+python -m pytest
+```
+
+The test suite covers:
+
+- Authentication
+- Application routes
+- Error pages
+- Personal library
+- Reviews
+
+### Pytest Successful Run
+
+![Pytest Successful Run ](app/static/images/pytest.png)
+
 ---
 
 ## Routing Structure

@@ -31,8 +31,10 @@
 14. Design Pattern Note: Facade  
 15. Challenges Faced and Solutions  
 16. What Was Learned So Far
-17. Next Milestones  
-18. References 
+17. Testing and Quality Assurance
+18. Continuous Integration
+19. Next Milestones
+20. References
 
 ---
 
@@ -1002,6 +1004,43 @@ Clicking a suggestion fills the search input with the selected title and clears 
  
 ---
 
+## Challenge 21: Setting Up Automated Testing
+
+### Challenge
+
+As more features were added, manually checking every route after changes became inefficient. Changes to authentication, database relationships, and user functionality could introduce unexpected issues.
+
+### Solution
+
+A pytest test suite was introduced using Flask's test client.
+
+A separate PostgreSQL test database was created to isolate automated tests from development data.
+
+Fixtures were created to:
+
+- initialise the Flask test application.
+- provide test clients.
+- create authenticated test users.
+- allow database operations during testing.
+
+This provides a repeatable way to verify important application behaviour.
+
+---
+
+## Challenge 22: Adding Continuous Integration
+
+### Challenge
+
+Tests running only on the developer's machine meant errors could still be introduced when pushing changes.
+
+### Solution
+
+A GitHub Actions workflow was created to automatically install dependencies and run pytest on every repository update.
+
+The workflow creates a clean testing environment with PostgreSQL, ensuring the application can be tested.
+
+---
+
 # What Was Learned So Far
 
 - Refactors (application factories, env variables, separated helpers) are usually organisational improvements, not logic changes — they pay off in scalability and maintainability.
@@ -1017,6 +1056,106 @@ Clicking a suggestion fills the search input with the selected title and clears 
 - Blueprints need consistent endpoint naming and careful import order to avoid circular imports.
 - CRUD design should separate entity data from relationship data via association tables, avoiding duplication.
 - Account deletion is a data lifecycle decision: cascade personal relationship data, but preserve user-generated content with identifiers removed where meaningful.
+
+---
+
+# Testing and Quality Assurance
+
+BiblioTech includes automated testing using `pytest` to verify that important application functionality continues to work after changes.
+
+Tests are stored in:
+
+tests/
+
+- conftest.py
+- test_auth.py
+- test_routes.py
+- test_library.py
+- test_reviews.py
+- test_errors.py
+
+## Test Configuration
+
+A separate test configuration is used to prevent automated tests from affecting development data.
+
+The test environment:
+
+- Uses a dedicated PostgreSQL test database.
+- Enables Flask testing mode.
+- Creates test users when authentication testing is required.
+- Uses Flask's test client to simulate browser requests.
+
+The test database is separate from the development database to avoid accidental changes to real user data.
+
+## Current Test Coverage
+
+The test suite currently verifies:
+
+### Authentication
+
+- Login page loads correctly.
+- Signup page loads correctly.
+- Invalid login credentials are rejected.
+- Logout redirects correctly.
+
+### Routes
+
+- Homepage loads successfully.
+- About page loads successfully.
+- Empty searches redirect correctly.
+- Autocomplete returns an empty response for invalid short queries.
+
+### Library
+
+- Library routes require authentication.
+- Logged-in users can access their library.
+
+### Reviews
+
+- Review routes require authentication.
+- Review deletion requires authentication.
+
+### Error Handling
+
+- Invalid routes return the custom 404 page.
+
+## Running Tests
+
+Tests are executed using:
+
+`python -m pytest`
+
+Current result:
+
+`16 passed`
+
+---
+
+# Continuous Integration
+
+BiblioTech uses GitHub Actions to automatically run the automated test suite when changes are pushed to the repository.
+
+The workflow is stored in:
+
+.github/workflows/python-app.yml
+
+The CI pipeline performs the following steps:
+
+- Creates a clean testing environment.
+- Installs the required Python version.
+- Installs project dependencies from `requirements.txt`.
+- Starts a PostgreSQL test database.
+- Configures the test database connection.
+- Runs the pytest test suite.
+
+The workflow helps identify issues early by ensuring that new changes do not break existing application functionality.
+
+Technologies used:
+
+- GitHub Actions
+- Python
+- PostgreSQL
+- pytest
 
 ---
 
@@ -1096,3 +1235,6 @@ https://docs.python.org/3/library/functools.html#functools.lru_cache
 
 - Python Logging Documentation:
 https://docs.python.org/3/library/logging.html
+
+- Pytest Documentation:
+https://docs.pytest.org/en/stable/
