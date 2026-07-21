@@ -20,6 +20,22 @@ The application uses PostgreSQL for persistent storage and follows the Flask app
 
 The application is deployed on Render using Gunicorn and PostgreSQL.
 
+**Render Web Service configuration:**
+
+- Build command: `pip install -r requirements.txt`
+- Start command: `gunicorn run:app`
+- Environment variables set in the Render dashboard:
+  - `SECRET_KEY`
+  - `DATABASE_URL` (provided automatically by the linked Render PostgreSQL instance)
+
+**Database:**
+
+A Render PostgreSQL add-on is linked to the web service. Migrations are applied against the production database using:
+
+```bash
+python -m flask db upgrade
+```
+
 ---
 
 ## Technologies Used
