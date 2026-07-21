@@ -198,7 +198,7 @@ python -m flask db <command>
 
 ## Routing Structure
 
-- `app/routes.py` → main pages (`/`, `/search-results`, `/book/<book_id>`, `/book/<book_id>/review`, `/library`, `/library/delete`, `/genre/<subject>`, `/about`)
+- `app/routes.py` → main pages (`/`, `/search-results`, `/auto-complete`, `/book/<book_id>`, `/book/<book_id>/review`, `/book/<book_id>/review/delete`, `/library`, `/library/delete`, `/library/add/<book_id>`, `/library/remove<book_id>`, `/genre/<genre>`, `/about`)
 - `app/auth/routes.py` → auth routes (`/auth/login`, `/auth/signup`, `/auth/logout`)
 - `app/auth/__init__.py` → auth blueprint setup
 
