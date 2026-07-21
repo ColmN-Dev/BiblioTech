@@ -1,4 +1,4 @@
-# BiblioTech
+# BiblioTech - Discover Your Next Great Read
 
 BiblioTech is a full-stack Flask web application that allows users to discover books using the Google Books API, build a personal library, write reviews, and manage their account.
 
