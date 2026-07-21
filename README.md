@@ -14,7 +14,7 @@ The application uses PostgreSQL for persistent storage and follows the Flask app
 
 ## Application Link
 
-### Live Site: [BiblioTech](https://bibliotech-ifum.onrender.com)
+### Live Site: [BiblioTech - Discover Your Next Great Read](https://bibliotech-ifum.onrender.com)
 
 ## Deployment
 
