@@ -140,6 +140,7 @@ Relationships are enforced using foreign keys and cascading behaviour where appr
 BiblioTech/
 │
 ├── migrations/
+├── tests/
 │
 ├── run.py
 ├── Procfile
