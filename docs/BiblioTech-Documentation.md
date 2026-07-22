@@ -38,7 +38,7 @@
 
 ---
 
-## Overview
+## 1. Overview
 
 BiblioTech is a Flask-based book discovery web application designed to allow users to search and explore books, create accounts, manage a personal library, and leave reviews on books.
 
@@ -46,7 +46,7 @@ The application uses the Google Books API as its external data source and has be
 
 ---
 
-# Project Development Summary
+# 2. Project Development Summary
 
 ## Initial Structure
 
@@ -100,7 +100,7 @@ python run.py
 
 ---
 
-# Current Architecture
+# 3. Current Architecture
 
 ## Application Factory
 
@@ -150,7 +150,7 @@ Sensitive configuration is stored outside the codebase using environment variabl
 
 ---
 
-# Current Routes
+# 4. Current Routes
 
 Routing is split by responsibility using Flask Blueprints.
 
@@ -187,7 +187,7 @@ Template links use blueprint-qualified endpoint names:
 
 The application uses Google Books API data for searching, book details, homepage content, and genre browsing. Database routes handle user-specific features including saved libraries, reviews, and account management.
 
-# Frontend Status
+# 5. Frontend Status
 
 Templates are stored in:
 
@@ -222,7 +222,7 @@ Contains:
 
 ---
 
-# Database and Models
+# 6. Database and Models
 
 SQLAlchemy and Flask-Migrate are configured through the application factory.
 
@@ -281,7 +281,7 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 
 ---
 
-# Completed Features
+# 7. Completed Features
 
 - Flask application factory architecture with Blueprint routing, environment configuration, SQLAlchemy, Flask-Migrate, and deployment setup.
 - Google Books API integration with search, book details, cover fallbacks, description sanitisation, marketplace links, timeout handling, and retry logic.
@@ -296,7 +296,7 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 
 ---
 
-# Current Limitations
+# 8. Current Limitations
 
 1. No average rating calculation — outside scope.
 2. Book cover quality/aspect ratio varies across the Google Books dataset.
@@ -304,7 +304,7 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 
 ---
 
-# Key Design Decisions
+# 9. Key Design Decisions
 
 1. Application factory pattern adopted early to avoid future restructuring.
 2. Sensitive config kept in environment variables, not code.
@@ -315,7 +315,7 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 
 ---
 
-# Google Books API Integration
+# 10. Google Books API Integration
 
 API functionality is contained inside:
 
@@ -437,7 +437,7 @@ Uses:
 
 ---
 
-# Review System
+# 11. Review System
 
 ### Overview
 
@@ -490,7 +490,7 @@ The review interface uses:
 
 ---
 
-# Account Management and Deletion System
+# 12. Account Management and Deletion System
 
 Account deletion was designed around preserving meaningful user-generated content while removing personal account data.
 
@@ -505,7 +505,7 @@ This avoids unnecessary data loss while preventing broken relationships.
 
 ---
 
-# Frontend Improvements
+# 13. Frontend Improvements
 
 Several frontend improvements were implemented after connecting API functionality to the user interface.
 
@@ -534,7 +534,7 @@ The frontend uses responsive CSS techniques to maintain usability across desktop
 
 ---
 
-# Design Pattern Note: Facade
+# 14. Design Pattern Note: Facade
 
 A Facade pattern was considered for the API integration.
 
@@ -544,7 +544,7 @@ A Facade may become useful in the future if BiblioTech expands to support multip
 
 ---
 
-# Challenges Faced and Solutions
+# 15. Challenges Faced and Solutions
 
 ## Challenge 1: Redesigning the ERD
 
@@ -1037,7 +1037,7 @@ The workflow creates a clean testing environment with PostgreSQL, ensuring the a
 
 ---
 
-# What Was Learned So Far
+# 16. What Was Learned So Far
 
 - Refactors (application factories, env variables, separated helpers) are usually organisational improvements, not logic changes — they pay off in scalability and maintainability.
 - Flask-Migrate handles schema changes safely without recreating the database, but migrations must be planned around relationships.
@@ -1055,7 +1055,7 @@ The workflow creates a clean testing environment with PostgreSQL, ensuring the a
 
 ---
 
-# Testing and Quality Assurance
+# 17. Testing and Quality Assurance
 
 BiblioTech includes automated testing using `pytest` to verify that important application functionality continues to work after changes.
 
@@ -1139,7 +1139,7 @@ tests\test_routes.py ....                                                       
 
 ---
 
-# Continuous Integration
+# 18. Continuous Integration
 
 BiblioTech uses GitHub Actions to automatically run the automated test suite when changes are pushed to the repository.
 
@@ -1167,7 +1167,7 @@ Technologies used:
 
 ---
 
-# Reflection
+# 19. Reflection
 
 Working on GlobalGrub gave me a first real look at what it takes to structure a Flask application, but it also showed me where that structure breaks down as a project grows. The feedback I received made it clear that having routes, models, and logic all sitting in one file becomes difficult to maintain once an application reaches a certain size. That lesson carried directly into how I approached BiblioTech.
 
@@ -1179,7 +1179,7 @@ More broadly, building BiblioTech taught me how a project at this scale actually
 
 ---
 
-# References
+# 20. References
 
 - Flask documentation:  
 https://flask.palletsprojects.com/
