@@ -1,6 +1,6 @@
 # BiblioTech Documentation
 
-**Last updated:** July 21, 2026
+**Last updated:** July 22, 2026
 
 ---
 
@@ -21,7 +21,7 @@
    - Auth Routes  
 5. Frontend Status  
 6. Database and Models  
-7. Planned Features vs Completed Features 
+7. Completed Features 
 8. Current Limitations  
 9. Key Design Decisions
 10. Google Books API Integration    
@@ -33,7 +33,7 @@
 16. What Was Learned So Far
 17. Testing and Quality Assurance
 18. Continuous Integration
-19. Next Milestones
+19. Reflection
 20. References
 
 ---
@@ -281,13 +281,7 @@ The `user_id` field allows NULL values so reviews can remain after an account is
 
 ---
 
-# Planned Features vs Completed Features
-
-## Planned Features
-
-- No current planned features
-
-## Completed Features
+# Completed Features
 
 - Flask application factory architecture with Blueprint routing, environment configuration, SQLAlchemy, Flask-Migrate, and deployment setup.
 - Google Books API integration with search, book details, cover fallbacks, description sanitisation, marketplace links, timeout handling, and retry logic.
@@ -560,7 +554,7 @@ The original ERD no longer matched the application's evolving requirements.
 
 ### Solution
 
-DBdiagram.io was used to redesign relationships and understand primary keys, foreign keys, and relationship tables before implementing the database models.
+**https://dbdiagram.io** was used to redesign relationships and understand primary keys, foreign keys, and relationship tables before implementing the database models.
 
 ---
 
@@ -739,11 +733,7 @@ The carousel occasionally failed to display a cover image. Some books returned b
 
 ### Solution
 
-Added fallback handling so the carousel checks whether a cover image actually exists before using it, defaulting to `no-cover.png` when it doesn't:
-
-```python
-cover = book_info.get("imageLinks", {}).get("thumbnail", "/static/images/no-cover.png")
-```
+Added fallback handling so the carousel checks whether a cover image actually exists before using it, defaulting to `no-cover.png` when it doesn't.
 
 This complements the genre-based query change from Challenge 6, since genre searches tend to return more relevant, better-catalogued books that are more likely to have a cover image in the first place.
 
@@ -757,7 +747,7 @@ Once images displayed correctly, thumbnails appeared visibly blurry when scaled 
 
 ### Solution
 
-Google Books' default thumbnail URLs return a low-resolution image (`zoom=1`). Resolved by using a regular expression to rewrite the `zoom` parameter to a higher value (`zoom=3`) for a sharper source image, combined with CSS (`object-fit: cover`) to keep images filling their containers cleanly. `object-fit: contain` was trialled for the carousel specifically to avoid cropping cover art, but reverted after testing showed the resulting whitespace looked worse across most books than the occasional bad crop under `cover`.
+Google Books' default thumbnail URLs return a low-resolution image (`zoom=1`). Resolved by using a regular expression to rewrite the `zoom` parameter in `def prepare_book()` to a higher value (`zoom=3`) for a sharper source image, combined with CSS (`object-fit: cover`) to keep images filling their containers cleanly. `object-fit: contain` was trialled for the carousel specifically to avoid cropping cover art, but reverted after testing showed the resulting whitespace looked worse across most books than the occasional bad crop under `cover`.
 
 ---
 
@@ -771,7 +761,7 @@ An existing retry loop inside `get_random_books()` also contained a logic bug: t
 
 ### Solution
 
-Added matching retry logic to `search_books()`, using the same `attempts`-based `while` loop pattern already used in `get_random_books()`, so both functions retry up to three times before giving up and returning an empty list. Corrected the indentation bug so the attempt counter increments inside the loop as intended.
+Added matching retry logic to `search_books()`, using the same `attempts` based `while` loop pattern already used in `get_random_books()`, so both functions retry up to three times before giving up and returning an empty list. Corrected the indentation bug so the attempt counter increments inside the loop as intended.
 
 Standardising both functions on the same retry pattern keeps the API-handling logic consistent and easier to maintain going forward.
 
@@ -785,13 +775,14 @@ The homepage carousel selected a random genre on each page load, but the same fi
 
 ### Solution
 
-Added a randomised `startIndex` parameter to the request inside `get_random_books()`, so each request pulls from a random slice of the genre's results rather than always the top five:
+Added a loop inside `get_random_books()` that selects a random genre from `FEATURED_GENRES` on each attempt using `random.choice()`, run across a fixed number of attempts (`for _ in range(3)`), rather than sending the same fixed request every time:
 
 ```python
-start_index = random.randint(0, 40)
+for _ in range(3):
+    genre = random.choice(FEATURED_GENRES)
 ```
 
-The range was kept relatively low to avoid landing in thinly populated result ranges for less common genres, which had previously contributed to inconsistent or empty results.
+Randomising the genre selection this way means the carousel pulls from a different subject each time rather than repeatedly returning the same five books for a single fixed genre. Limiting this to a small, fixed number of attempts kept the retry behaviour predictable and avoided compounding failures if a particular genre's results were thin or inconsistent.
 
 A later restyling pass (switching carousel images to `object-fit: contain` and repositioning the navigation arrows beside the dots) briefly broke due to mismatched closing `</div>` tags placing `.carousel-nav` outside the `.carousel` container — corrected by fixing the nesting.
 
@@ -976,14 +967,19 @@ Current improvements include:
 
 Current cache settings:
 
-- API responses: 6 hours.
-- Homepage carousel results: 6 hours.
+```python
+# Keep API results for 6 hours
+API_CACHE_DURATION = 21600
+
+# Keep homepage carousel for 6 hours
+HOMEPAGE_CACHE_DURATION = 21600
+```
 
 This reduces unnecessary external requests while improving reliability during normal application usage.
 
 ---
 
-### Challenge 20: Challenge 20: Implementing Search Autocomplete
+### Challenge 20: Implementing Search Autocomplete
  
 ### Challenge
  
@@ -1109,11 +1105,13 @@ The test suite currently verifies:
 
 - Library routes require authentication.
 - Logged-in users can access their library.
+- Logged-in users can add and remove saved books
 
 ### Reviews
 
 - Review routes require authentication.
 - Review deletion requires authentication.
+- Invalid rating is rejected
 
 ### Error Handling
 
@@ -1127,7 +1125,17 @@ Tests are executed using:
 
 Current result:
 
-`16 passed`
+```bash
+collected 16 items                                                                                                                                
+
+tests\test_auth.py ....                                                                                                                     [ 25%]
+tests\test_errors.py .                                                                                                                      [ 31%]
+tests\test_library.py ....                                                                                                                  [ 56%]
+tests\test_reviews.py ...                                                                                                                   [ 75%]
+tests\test_routes.py ....                                                                                                                   [100%]
+
+============================================================== 16 passed in 35.98s ===============================================================
+```
 
 ---
 
@@ -1159,9 +1167,15 @@ Technologies used:
 
 ---
 
-# Next Milestones
+# Reflection
 
-1. Improve deployment and production testing.
+Working on GlobalGrub gave me a first real look at what it takes to structure a Flask application, but it also showed me where that structure breaks down as a project grows. The feedback I received made it clear that having routes, models, and logic all sitting in one file becomes difficult to maintain once an application reaches a certain size. That lesson carried directly into how I approached BiblioTech.
+
+The application factory pattern with Blueprints wasn't something I set up from day one, but it was an early implementation that streamlined my workflow significantly. Separating concerns this way meant I could make changes to one part of the application, such as authentication or review logic, without affecting how the rest of the structure worked together. Each file could be developed with its own dedicated responsibility while still connecting cleanly through the application factory.
+
+For the visual design, I wanted to build on what worked with GlobalGrub rather than start from nothing. BiblioTech reuses that general design sensibility but refines it further, with a light mode and dark mode toggle built around a dedicated colour palette rather than a single fixed theme.
+
+More broadly, building BiblioTech taught me how a project at this scale actually needs to be structured. It isn't just about writing functional code for each individual piece, it's about understanding how the backend, frontend, database, and external API all need to communicate cleanly with one another. Working with a third-party API in particular reinforced how much of that reliability comes down to decisions made outside the core logic itself, like caching, rather than the request-response cycle alone. Getting that balance right was as much a part of learning full-stack development as any individual feature.
 
 ---
 
