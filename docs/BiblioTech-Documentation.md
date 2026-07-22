@@ -38,7 +38,7 @@
 
 ---
 
-## 1. Overview
+# 1. Overview
 
 BiblioTech is a Flask-based book discovery web application designed to allow users to search and explore books, create accounts, manage a personal library, and leave reviews on books.
 
