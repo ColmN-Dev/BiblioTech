@@ -941,7 +941,7 @@ Database migrations were required after changing model constraints to keep the d
 
 ---
 
-### Challenge 19: Google Books API Reliability and Request Caching
+## Challenge 19: Google Books API Reliability and Request Caching
 
 ### Challenge
 
@@ -979,7 +979,7 @@ This reduces unnecessary external requests while improving reliability during no
 
 ---
 
-### Challenge 20: Implementing Search Autocomplete
+## Challenge 20: Implementing Search Autocomplete
  
 ### Challenge
  
