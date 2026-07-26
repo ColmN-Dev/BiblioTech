@@ -1,6 +1,6 @@
 # BiblioTech Documentation
 
-**Last updated:** July 22, 2026
+**Last updated:** July 26, 2026
 
 ---
 
