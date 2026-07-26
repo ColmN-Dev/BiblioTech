@@ -6,35 +6,35 @@
 
 # Table of Contents
 
-1. Overview  
-2. Project Development Summary  
+1. [Overview](#1-overview)
+2. [Project Development Summary](#2-project-development-summary)  
    - Initial Structure  
    - Migration to Flask Application Factory Structure  
    - Runtime and Deployment  
-3. Current Architecture  
+3. [Current Architecture](#3-current-architecture)  
    - Application Factory  
    - Configuration  
    - Entry Point  
    - Folder Structure (Updated With Auth Package)  
-4. Current Routes  
+4. [Current Routes](#4-current-routes)  
    - Main Routes  
    - Auth Routes  
-5. Frontend Status  
-6. Database and Models  
-7. Completed Features 
-8. Current Limitations  
-9. Key Design Decisions
-10. Google Books API Integration    
-11. Review System
-12. Account Management and Deletion System
-13. Frontend Improvements  
-14. Design Pattern Note: Facade  
-15. Challenges Faced and Solutions  
-16. What Was Learned So Far
-17. Testing and Quality Assurance
-18. Continuous Integration
-19. Reflection
-20. References
+5. [Frontend Status](#5-frontend-status)  
+6. [Database and Models](#6-database-and-models)
+7. [Completed Features](#7-completed-features) 
+8. [Current Limitations](#8-current-limitations)  
+9. [Key Design Decisions](#9-key-design-decisions)
+10. [Google Books API Integration](#10-google-books-api-integration)    
+11. [Review System](#11-review-system)
+12. [Account Management and Deletion System](#12-account-management-and-deletion-system)
+13. [Frontend Improvements](#13-frontend-improvements)
+14. [Design Pattern Note: Facade](#14-design-pattern-note-facade)  
+15. [Challenges Faced and Solutions](#15-challenges-faced-and-solutions)  
+16. [What Was Learned So Far](#16-what-was-learned-so-far)
+17. [Testing and Quality Assurance](#17-testing-and-quality-assurance)
+18. [Continuous Integration](#18-continuous-integration)
+19. [Reflection](#19-reflection)
+20. [References](#20-references)
 
 ---
 
